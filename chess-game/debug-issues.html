@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Chess Issues</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-area { border: 1px solid #ccc; padding: 15px; margin: 10px 0; }
+        button { padding: 10px 15px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #output { background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; margin: 10px 0; min-height: 100px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Chess Debug Test</h1>
+    
+    <div class="test-area">
+        <h2>Game Setup Test</h2>
+        <button onclick="testGameSetup()">Test Game Setup</button>
+        <button onclick="testGameModeSetting()">Test Game Mode Setting</button>
+    </div>
+    
+    <div class="test-area">
+        <h2>Move and Capture Test</h2>
+        <button onclick="testSimpleMove()">Test Simple Move</button>
+        <button onclick="testCaptureMove()">Test Capture Move</button>
+    </div>
+    
+    <div class="test-area">
+        <h2>Computer Mode Test</h2>
+        <button onclick="testComputerMode()">Test Computer Mode</button>
+        <button onclick="testComputerMoveTrigger()">Test Computer Move Trigger</button>
+    </div>
+    
+    <div id="output">
+        <p>Click buttons above to run tests...</p>
+    </div>
+
+    <script src="js/chess.js"></script>
+    <script src="js/ChessGame.js"></script>
+    <script>
+        let chessGame = null;
+        const output = document.getElementById('output');
+        
+        function log(message, type = 'info') {
+            const line = document.createElement('div');
+            line.textContent = message;
+            line.className = type;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+        
+        function testGameSetup() {
+            clearOutput();
+            log('Testing game setup...', 'info');
+            
+            try {
+                chessGame = new ChessGame();
+                log('✓ ChessGame created successfully', 'success');
+                log(`Initial game mode: ${chessGame.gameMode}`, 'info');
+                log(`Initial computer level: ${chessGame.computerLevel}`, 'info');
+                log(`Initial current player: ${chessGame.getCurrentPlayer()}`, 'info');
+                log(`Is computer turn: ${chessGame.isComputerTurn()}`, 'info');
+            } catch (e) {
+                log(`✗ Error creating ChessGame: ${e.message}`, 'error');
+            }
+        }
+        
+        function testGameModeSetting() {
+            clearOutput();
+            log('Testing game mode setting...', 'info');
+            
+            if (!chessGame) {
+                log('✗ ChessGame not initialized. Run "Test Game Setup" first.', 'error');
+                return;
+            }
+            
+            try {
+                log(`Current game mode: ${chessGame.gameMode}`, 'info');
+                log('Setting game mode to "computer"', 'info');
+                chessGame.setGameMode('computer');
+                log(`New game mode: ${chessGame.gameMode}`, 'info');
+                
+                log('Setting game mode to "human"', 'info');
+                chessGame.setGameMode('human');
+                log(`New game mode: ${chessGame.gameMode}`, 'info');
+                
+                log('Setting game mode back to "computer"', 'info');
+                chessGame.setGameMode('computer');
+                log(`Final game mode: ${chessGame.gameMode}`, 'info');
+                log(`Is computer turn: ${chessGame.isComputerTurn()}`, 'info');
+            } catch (e) {
+                log(`✗ Error setting game mode: ${e.message}`, 'error');
+            }
+        }
+        
+        function testSimpleMove() {
+            clearOutput();
+            log('Testing simple move...', 'info');
+            
+            if (!chessGame) {
+                log('✗ ChessGame not initialized. Run "Test Game Setup" first.', 'error');
+                return;
+            }
+            
+            try {
+                log('Board state before move:', 'info');
+                const boardState = chessGame.getBoardState();
+                log(`Current player: ${boardState.currentPlayer}`, 'info');
+                const piece = boardState.board[6][4]; // e2 pawn
+                log(`Piece at e2: ${JSON.stringify(piece)}`, 'info');
+                
+                log('Attempting to move pawn e2 to e4...', 'info');
+                const result = chessGame.movePiece(6, 4, 4, 4); // e2 to e4
+                log(`Move result: ${result}`, result ? 'success' : 'error');
+                
+                if (result) {
+                    log('Board state after move:', 'info');
+                    const newBoardState = chessGame.getBoardState();
+                    log(`New current player: ${newBoardState.currentPlayer}`, 'info');
+                    const newPiece = newBoardState.board[4][4]; // e4
+                    log(`Piece at e4: ${JSON.stringify(newPiece)}`, 'info');
+                }
+            } catch (e) {
+                log(`✗ Error during simple move: ${e.message}`, 'error');
+                console.error(e);
+            }
+        }
+        
+        function testCaptureMove() {
+            clearOutput();
+            log('Testing capture move...', 'info');
+            
+            if (!chessGame) {
+                log('✗ ChessGame not initialized. Run "Test Game Setup" first.', 'error');
+                return;
+            }
+            
+            try {
+                // First make a move to open up the board
+                log('Making initial move: e2 to e4', 'info');
+                const move1 = chessGame.movePiece(6, 4, 4, 4);
+                log(`First move result: ${move1}`, move1 ? 'success' : 'error');
+                
+                if (!move1) {
+                    log('✗ Could not make first move', 'error');
+                    return;
+                }
+                
+                log('Making second move: e7 to e5', 'info');
+                const move2 = chessGame.movePiece(1, 4, 3, 4);
+                log(`Second move result: ${move2}`, move2 ? 'success' : 'error');
+                
+                if (!move2) {
+                    log('✗ Could not make second move', 'error');
+                    return;
+                }
+                
+                log('Attempting capture: e4 to e5', 'info');
+                const capture = chessGame.movePiece(4, 4, 3, 4);
+                log(`Capture result: ${capture}`, capture ? 'success' : 'error');
+                
+                if (capture) {
+                    log('✓ Capture successful!', 'success');
+                } else {
+                    log('✗ Capture failed', 'error');
+                    log('Getting possible moves for e4 pawn...', 'info');
+                    const possibleMoves = chessGame.getPossibleMoves(4, 4);
+                    log(`Possible moves: ${JSON.stringify(possibleMoves)}`, 'info');
+                }
+            } catch (e) {
+                log(`✗ Error during capture move: ${e.message}`, 'error');
+                console.error(e);
+            }
+        }
+        
+        function testComputerMode() {
+            clearOutput();
+            log('Testing computer mode setup...', 'info');
+            
+            if (!chessGame) {
+                log('✗ ChessGame not initialized. Run "Test Game Setup" first.', 'error');
+                return;
+            }
+            
+            try {
+                chessGame.resetGame();
+                chessGame.setGameMode('computer');
+                log(`✓ Game mode set to: ${chessGame.gameMode}`, 'success');
+                log(`Current player: ${chessGame.getCurrentPlayer()}`, 'info');
+                log(`Is computer turn: ${chessGame.isComputerTurn()}`, 'info');
+                
+                // Make a move to switch to black's turn
+                log('Making human move: e2 to e4', 'info');
+                const humanMove = chessGame.movePiece(6, 4, 4, 4);
+                log(`Human move result: ${humanMove}`, humanMove ? 'success' : 'error');
+                
+                if (humanMove) {
+                    log(`New current player: ${chessGame.getCurrentPlayer()}`, 'info');
+                    log(`Is computer turn now: ${chessGame.isComputerTurn()}`, 'info');
+                }
+            } catch (e) {
+                log(`✗ Error in computer mode test: ${e.message}`, 'error');
+                console.error(e);
+            }
+        }
+        
+        function testComputerMoveTrigger() {
+            clearOutput();
+            log('Testing computer move trigger...', 'info');
+            
+            if (!chessGame) {
+                log('✗ ChessGame not initialized. Run "Test Game Setup" first.', 'error');
+                return;
+            }
+            
+            try {
+                chessGame.resetGame();
+                chessGame.setGameMode('computer');
+                log(`Game mode: ${chessGame.gameMode}`, 'info');
+                
+                // Make human move
+                log('Making human move: e2 to e4', 'info');
+                const humanMove = chessGame.movePiece(6, 4, 4, 4);
+                log(`Human move result: ${humanMove}`, humanMove ? 'success' : 'error');
+                
+                if (humanMove) {
+                    log(`Current player: ${chessGame.getCurrentPlayer()}`, 'info');
+                    log(`Is computer turn: ${chessGame.isComputerTurn()}`, 'info');
+                    
+                    if (chessGame.isComputerTurn()) {
+                        log('Attempting computer move...', 'info');
+                        const compMove = chessGame.makeComputerMove();
+                        log(`Computer move result: ${compMove}`, compMove ? 'success' : 'error');
+                        
+                        if (compMove) {
+                            log(`New current player: ${chessGame.getCurrentPlayer()}`, 'info');
+                            log(`Move details: ${JSON.stringify(compMove)}`, 'info');
+                        } else {
+                            log('Getting available moves for debug...', 'info');
+                            const chess = new Chess();
+                            chess.move('e4');
+                            const moves = chess.moves({ verbose: true });
+                            log(`Available moves for computer: ${moves.length}`, 'info');
+                            if (moves.length > 0) {
+                                log(`First move example: ${JSON.stringify(moves[0])}`, 'info');
+                            }
+                        }
+                    } else {
+                        log('✗ It is not computer turn yet', 'error');
+                        log('This indicates the game mode is not working properly', 'error');
+                    }
+                }
+            } catch (e) {
+                log(`✗ Error in computer move test: ${e.message}`, 'error');
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

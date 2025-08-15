@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chess Debug</title>
+</head>
+<body>
+    <h1>Chess Game Debug</h1>
+    <div id="debug-info"></div>
+    
+    <!-- Include chess.js library -->
+    <script src="js/chess.js"></script>
+    <script src="js/ChessGame.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const debugInfo = document.getElementById('debug-info');
+            
+            try {
+                debugInfo.innerHTML += '<p>Initializing chess game...</p>';
+                
+                // Test Chess class
+                if (typeof Chess !== 'undefined') {
+                    debugInfo.innerHTML += '<p>✓ Chess class found</p>';
+                    const testGame = new Chess();
+                    debugInfo.innerHTML += '<p>✓ Chess instance created</p>';
+                } else {
+                    debugInfo.innerHTML += '<p>✗ Chess class not found</p>';
+                    return;
+                }
+                
+                // Test ChessGame class
+                if (typeof ChessGame !== 'undefined') {
+                    debugInfo.innerHTML += '<p>✓ ChessGame class found</p>';
+                    const chessGame = new ChessGame();
+                    debugInfo.innerHTML += '<p>✓ ChessGame instance created</p>';
+                    
+                    // Test methods
+                    debugInfo.innerHTML += '<p>Testing methods:</p>';
+                    
+                    const boardState = chessGame.getBoardState();
+                    debugInfo.innerHTML += `<p>Board state - Current player: ${boardState.currentPlayer}</p>`;
+                    debugInfo.innerHTML += `<p>Game mode: ${chessGame.gameMode}</p>`;
+                    debugInfo.innerHTML += `<p>Is computer turn: ${chessGame.isComputerTurn()}</p>`;
+                    
+                    // Test specific square
+                    const piece = chessGame.getPiece(0, 0); // Should be a black rook
+                    if (piece) {
+                        debugInfo.innerHTML += `<p>Piece at 0,0: ${piece.type} (${piece.color})</p>`;
+                    } else {
+                        debugInfo.innerHTML += `<p>No piece at 0,0</p>`;
+                    }
+                    
+                } else {
+                    debugInfo.innerHTML += '<p>✗ ChessGame class not found</p>';
+                }
+            } catch (error) {
+                debugInfo.innerHTML += `<p>✗ Error: ${error.message}</p>`;
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>

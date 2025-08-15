@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toronto Wakesurf - Adventure Awaits on the Water</title>
+    <meta name="description" content="Experience the ultimate wakesurfing adventure in Toronto. Professional instruction, premium equipment, and unforgettable water sports experiences.">
+    
+    <!-- Google Fonts - Similar to HighX theme -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header/Navigation -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">
+                    <h1 class="logo">TORONTO<span>WAKESURF</span></h1>
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="#home" class="nav-link">Home</a></li>
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link">Adventures <i class="fas fa-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#services">Wakesurfing Lessons</a></li>
+                            <li><a href="#services">Boat Rentals</a></li>
+                            <li><a href="#services">Private Sessions</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+                    <li class="nav-item"><a href="#pricing" class="nav-link">Pricing</a></li>
+                    <li class="nav-item"><a href="#testimonials" class="nav-link">Reviews</a></li>
+                    <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="nav-toggle">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Slider Section -->
+    <section id="home" class="hero-slider">
+        <div class="slider-container">
+            <!-- Slide 1 - Video Background -->
+            <div class="slide active video-slide">
+                <video class="slide-video" autoplay muted loop playsinline>
+                    <source src="video/Armand-Wake.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="slide-content">
+                    <div class="container">
+                        <h1 class="slide-title">UNLEASH YOUR<br><span class="highlight">WATER ADVENTURE</span></h1>
+                        <p class="slide-subtitle">Experience the thrill of wakesurfing on Toronto's pristine waters with professional instruction and premium equipment</p>
+                        <div class="slide-actions">
+                            <a href="#contact" class="btn btn-primary">Book Adventure</a>
+                            <a href="#about" class="btn btn-outline">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 2 - Keiron Video Background -->
+            <div class="slide video-slide">
+                <video class="slide-video" autoplay muted loop playsinline>
+                    <source src="video/Keiron-Wake.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="slide-content">
+                    <div class="container">
+                        <h1 class="slide-title">MASTER THE<br><span class="highlight">PERFECT WAVE</span></h1>
+                        <p class="slide-subtitle">From beginner to pro - our certified instructors will guide you through every step of your wakesurfing journey</p>
+                        <div class="slide-actions">
+                            <a href="#services" class="btn btn-primary">View Lessons</a>
+                            <a href="#pricing" class="btn btn-outline">See Pricing</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 3 -->
+            <div class="slide" data-bg="linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+                <div class="slide-content">
+                    <div class="container">
+                        <h1 class="slide-title">PREMIUM<br><span class="highlight">EQUIPMENT</span></h1>
+                        <p class="slide-subtitle">State-of-the-art boats and gear ensuring the ultimate wakesurfing experience on Toronto's waters</p>
+                        <div class="slide-actions">
+                            <a href="#contact" class="btn btn-primary">Rent Equipment</a>
+                            <a href="#about" class="btn btn-outline">Our Fleet</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slider Navigation -->
+        <div class="slider-nav">
+            <button class="prev-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="next-btn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        
+        <!-- Slider Dots -->
+        <div class="slider-dots">
+            <span class="dot active" data-slide="0"></span>
+            <span class="dot" data-slide="1"></span>
+            <span class="dot" data-slide="2"></span>
+        </div>
+    </section>
+
+    <!-- About Section - Choose Your Adventure -->
+    <section id="about" class="about-adventure">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">CHOOSE YOUR <span class="highlight">ADVENTURE</span></h2>
+                <p class="section-subtitle">Discover the perfect wakesurfing experience tailored to your skill level and adventure appetite</p>
+            </div>
+            
+            <div class="adventure-grid">
+                <div class="adventure-card">
+                    <div class="card-image">
+                        <img src="images/beginner-adventure.jpg" alt="Beginner Adventure">
+                        <div class="card-overlay">
+                            <h3>BEGINNER<br>ADVENTURE</h3>
+                            <p>Perfect for first-timers ready to experience the thrill</p>
+                            <a href="#pricing" class="card-btn">Start Journey</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="adventure-card">
+                    <div class="card-image">
+                        <img src="images/intermediate-adventure.jpg" alt="Intermediate Adventure">
+                        <div class="card-overlay">
+                            <h3>INTERMEDIATE<br>CHALLENGE</h3>
+                            <p>Take your skills to the next level with advanced techniques</p>
+                            <a href="#pricing" class="card-btn">Level Up</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="adventure-card">
+                    <div class="card-image">
+                        <img src="images/pro-adventure.jpg" alt="Pro Adventure">
+                        <div class="card-overlay">
+                            <h3>PRO<br>EXPERIENCE</h3>
+                            <p>Master advanced tricks and techniques like a professional</p>
+                            <a href="#pricing" class="card-btn">Go Pro</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Extreme Activities Section -->
+    <section id="services" class="extreme-activities">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">EXTREME <span class="highlight">ACTIVITIES</span></h2>
+                <p class="section-subtitle">Push your limits with our range of adrenaline-pumping water sports experiences</p>
+            </div>
+            
+            <div class="activities-grid">
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-water"></i>
+                    </div>
+                    <h3>Wakesurfing Lessons</h3>
+                    <p>Learn from certified professionals with personalized instruction programs</p>
+                    <ul class="activity-features">
+                        <li>Professional Instruction</li>
+                        <li>All Skill Levels</li>
+                        <li>Premium Equipment</li>
+                        <li>Safety Certified</li>
+                    </ul>
+                    <a href="#contact" class="activity-btn">Book Now</a>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-ship"></i>
+                    </div>
+                    <h3>Boat Rentals</h3>
+                    <p>Premium wakesurfing boats equipped with the latest wave-making technology</p>
+                    <ul class="activity-features">
+                        <li>Latest Technology</li>
+                        <li>Professional Captains</li>
+                        <li>Full Day Packages</li>
+                        <li>Group Discounts</li>
+                    </ul>
+                    <a href="#contact" class="activity-btn">Rent Boat</a>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3>Private Sessions</h3>
+                    <p>One-on-one coaching for rapid skill development and personalized training</p>
+                    <ul class="activity-features">
+                        <li>Personal Coach</li>
+                        <li>Customized Training</li>
+                        <li>Flexible Scheduling</li>
+                        <li>Fast Progress</li>
+                    </ul>
+                    <a href="#contact" class="activity-btn">Go Private</a>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Group Adventures</h3>
+                    <p>Perfect for parties, corporate events, and team building on the water</p>
+                    <ul class="activity-features">
+                        <li>Team Building</li>
+                        <li>Corporate Events</li>
+                        <li>Birthday Parties</li>
+                        <li>Special Packages</li>
+                    </ul>
+                    <a href="#contact" class="activity-btn">Plan Event</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Plans -->
+    <section id="pricing" class="pricing-plans">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">ADVENTURE <span class="highlight">PRICING</span></h2>
+                <p class="section-subtitle">Choose the perfect package for your wakesurfing adventure</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>STARTER</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">89</span>
+                            <span class="period">/session</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>1 Hour Session</li>
+                        <li>Beginner Instruction</li>
+                        <li>Equipment Included</li>
+                        <li>Safety Briefing</li>
+                        <li>Basic Techniques</li>
+                    </ul>
+                    <a href="#contact" class="pricing-btn">Choose Plan</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">MOST POPULAR</div>
+                    <div class="pricing-header">
+                        <h3>ADVENTURE</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">149</span>
+                            <span class="period">/session</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>2 Hour Session</li>
+                        <li>Advanced Instruction</li>
+                        <li>Premium Equipment</li>
+                        <li>Video Analysis</li>
+                        <li>Technique Refinement</li>
+                        <li>Photo Package</li>
+                    </ul>
+                    <a href="#contact" class="pricing-btn">Choose Plan</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>EXTREME</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">249</span>
+                            <span class="period">/session</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Half Day Experience</li>
+                        <li>Pro Instruction</li>
+                        <li>Competition Training</li>
+                        <li>Advanced Tricks</li>
+                        <li>Professional Photos</li>
+                        <li>Certificate</li>
+                    </ul>
+                    <a href="#contact" class="pricing-btn">Choose Plan</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">ADVENTURE <span class="highlight">STORIES</span></h2>
+                <p class="section-subtitle">Hear from our community of water sports enthusiasts</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"Absolutely incredible experience! The instructors were professional and made me feel confident on the water from day one. Toronto Wakesurf exceeded all my expectations!"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="images/testimonial-1.jpg" alt="Sarah Johnson">
+                        </div>
+                        <div class="author-info">
+                            <h4>Sarah Johnson</h4>
+                            <span>Adventure Seeker</span>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"The equipment is top-notch and the team's expertise really shows. I went from never wakesurfing to confidently riding waves in just two sessions!"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="images/testimonial-2.jpg" alt="Mike Rodriguez">
+                        </div>
+                        <div class="author-info">
+                            <h4>Mike Rodriguez</h4>
+                            <span>Water Sports Enthusiast</span>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"Perfect for our corporate team building event. The crew was accommodating, professional, and everyone had an amazing time on the water!"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-image">
+                            <img src="images/testimonial-3.jpg" alt="Emma Chen">
+                        </div>
+                        <div class="author-info">
+                            <h4>Emma Chen</h4>
+                            <span>Corporate Event Planner</span>
+                        </div>
+                    </div>
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-adventure">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">START YOUR <span class="highlight">ADVENTURE</span></h2>
+                <p class="section-subtitle">Ready to experience the thrill? Get in touch and book your wakesurfing adventure today!</p>
+            </div>
+            
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Adventure Base</h4>
+                            <p>Toronto Harbor<br>Multiple Departure Points<br>Ontario, Canada</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Adventure Hotline</h4>
+                            <p><a href="tel:+14167890123">(416) 789-0123</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Adventure Email</h4>
+                            <p><a href="mailto:adventure@torontowakesurf.com">adventure@torontowakesurf.com</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>Adventure Hours</h4>
+                            <p>Mon - Sun: 8:00 AM - 8:00 PM<br>Seasonal Operation<br>May - October</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <form class="adventure-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" name="name" placeholder="Your Name" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="email" name="email" placeholder="Your Email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="tel" name="phone" placeholder="Phone Number">
+                            </div>
+                            <div class="form-group">
+                                <select name="adventure" required>
+                                    <option value="">Choose Adventure</option>
+                                    <option value="beginner">Beginner Lesson</option>
+                                    <option value="intermediate">Intermediate Training</option>
+                                    <option value="advanced">Advanced Coaching</option>
+                                    <option value="private">Private Session</option>
+                                    <option value="group">Group Event</option>
+                                    <option value="rental">Boat Rental</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <textarea name="message" placeholder="Tell us about your adventure goals..." rows="5" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="form-submit">BOOK ADVENTURE</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 class="footer-logo">TORONTO<span>WAKESURF</span></h3>
+                    <p>Your ultimate destination for wakesurfing adventures in Toronto. Experience the thrill, master the waves, create memories that last a lifetime.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Adventures</h4>
+                    <ul class="footer-links">
+                        <li><a href="#services">Wakesurfing Lessons</a></li>
+                        <li><a href="#services">Boat Rentals</a></li>
+                        <li><a href="#services">Private Sessions</a></li>
+                        <li><a href="#services">Group Events</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Information</h4>
+                    <ul class="footer-links">
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#testimonials">Reviews</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <div class="footer-contact">
+                        <p><i class="fas fa-phone"></i> (416) 789-0123</p>
+                        <p><i class="fas fa-envelope"></i> adventure@torontowakesurf.com</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Toronto Harbor, ON</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2024 Toronto Wakesurf. All rights reserved. | Adventure Awaits</p>
+                    <ul class="footer-bottom-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Safety Guidelines</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/script.js"></script>
+</body>
+</html>

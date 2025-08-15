@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔬 Zoom ONLY Test</title>
+    <style>
+        body { margin: 0; background: #111; color: #fff; font-family: monospace; }
+        #info { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>🔬 Zoom ONLY Test</h3>
+        <div id="zoom-status">🖱️ Zoom: Ready for testing</div>
+        <div id="camera-pos">📷 Camera: --</div>
+        <div id="spherical-pos">🌐 Spherical: --</div>
+        <div id="event-count">📊 Events: 0</div>
+        <hr>
+        <div><strong>Use mouse wheel to test zoom</strong></div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/cameraControls.js"></script>
+    
+    <script>
+        console.log('🔬 ZOOM ONLY TEST: Starting isolated zoom test...');
+        
+        // Create minimal test scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Add a simple reference sphere
+        const geometry = new THREE.SphereGeometry(1, 16, 16);
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0x4CAF50,
+            wireframe: true
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+        
+        // Position camera at a known location
+        camera.position.set(0, 0, 5);
+        camera.lookAt(0, 0, 0);
+        
+        console.log('🔬 ZOOM ONLY TEST: Initial camera position:', camera.position.x, camera.position.y, camera.position.z);
+        
+        // Create camera controls with debug
+        let cameraControls;
+        let eventCount = 0;
+        
+        try {
+            cameraControls = new CameraControls(camera, renderer.domElement, scene);
+            console.log('🔬 ZOOM ONLY TEST: ✅ CameraControls created');
+            console.log('🔬 ZOOM ONLY TEST: Initial spherical:', cameraControls.spherical.radius, cameraControls.spherical.theta, cameraControls.spherical.phi);
+            
+            // Update display
+            updateDisplay();
+            
+        } catch (error) {
+            console.error('🔬 ZOOM ONLY TEST: ❌ Failed to create controls:', error);
+            document.getElementById('zoom-status').innerHTML = '🖱️ Zoom: <span class="error">❌ Controls Failed</span>';
+        }
+        
+        function updateDisplay() {
+            if (cameraControls) {
+                document.getElementById('camera-pos').textContent = 
+                    `📷 Camera: (${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)})`;
+                document.getElementById('spherical-pos').textContent = 
+                    `🌐 Spherical: r=${cameraControls.spherical.radius.toFixed(2)}, θ=${cameraControls.spherical.theta.toFixed(2)}, φ=${cameraControls.spherical.phi.toFixed(2)}`;
+            }
+        }
+        
+        // Monitor wheel events directly
+        renderer.domElement.addEventListener('wheel', (event) => {
+            eventCount++;
+            console.log(`🔬 ZOOM EVENT #${eventCount}: deltaY=${event.deltaY}`);
+            
+            if (cameraControls) {
+                const beforePos = camera.position.clone();
+                const beforeRadius = cameraControls.spherical.radius;
+                
+                // Let the controls handle it, then check results
+                setTimeout(() => {
+                    const afterPos = camera.position.clone();
+                    const afterRadius = cameraControls.spherical.radius;
+                    const distance = beforePos.distanceTo(afterPos);
+                    const radiusChange = Math.abs(beforeRadius - afterRadius);
+                    
+                    console.log(`🔬 ZOOM EVENT #${eventCount} RESULT:`);
+                    console.log(`  Position change: ${distance.toFixed(4)}`);
+                    console.log(`  Radius change: ${radiusChange.toFixed(4)}`);
+                    console.log(`  Before: ${beforePos.x.toFixed(2)}, ${beforePos.y.toFixed(2)}, ${beforePos.z.toFixed(2)}`);
+                    console.log(`  After: ${afterPos.x.toFixed(2)}, ${afterPos.y.toFixed(2)}, ${afterPos.z.toFixed(2)}`);
+                    
+                    document.getElementById('event-count').textContent = `📊 Events: ${eventCount}`;
+                    
+                    if (distance > 0.001 || radiusChange > 0.001) {
+                        document.getElementById('zoom-status').innerHTML = 
+                            `🖱️ Zoom: <span class="success">✅ Working! (${distance.toFixed(3)} units moved)</span>`;
+                    } else {
+                        document.getElementById('zoom-status').innerHTML = 
+                            `🖱️ Zoom: <span class="error">❌ Not working (no movement detected)</span>`;
+                    }
+                    
+                    updateDisplay();
+                }, 50);
+            }
+        });
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (cameraControls) {
+                cameraControls.update();
+            }
+            
+            // Slow sphere rotation for reference
+            sphere.rotation.y += 0.005;
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Start
+        animate();
+        
+        // Update display periodically
+        setInterval(updateDisplay, 1000);
+        
+        console.log('🔬 ZOOM ONLY TEST: Test ready! Use mouse wheel to zoom.');
+        
+    </script>
+</body>
+</html>

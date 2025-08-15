@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Chess Game Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        .instructions {
+            background-color: #e9f7fe;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #007acc;
+        }
+        .test-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button.success {
+            background-color: #28a745;
+        }
+        button.error {
+            background-color: #dc3545;
+        }
+        #output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chess Game Final Test</h1>
+        
+        <div class="instructions">
+            <h2>Test Instructions</h2>
+            <p>This page will test if the chess game is working correctly after all fixes:</p>
+            <ol>
+                <li>Click "Run Full Test" to verify all components are working</li>
+                <li>Check the output area for test results</li>
+                <li>If all tests pass, the chess game should be functional</li>
+                <li>Open browser console (F12) to see detailed debug information</li>
+            </ol>
+        </div>
+        
+        <div class="test-buttons">
+            <button id="runTest" onclick="runFullTest()">Run Full Test</button>
+            <button id="testPieces" onclick="testPieceInteraction()">Test Piece Interaction</button>
+            <button id="testMoves" onclick="testMoveGeneration()">Test Move Generation</button>
+        </div>
+        
+        <div id="output">
+            <p>Click "Run Full Test" to begin testing...</p>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <!-- Include chess.js library -->
+    <script src="js/chess.js"></script>
+    <script src="js/ChessGame.js"></script>
+    <script>
+        // Test output functions
+        function logOutput(message, type = 'info') {
+            const output = document.getElementById('output');
+            const line = document.createElement('div');
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            if (type === 'success') line.style.color = 'green';
+            else if (type === 'error') line.style.color = 'red';
+            else line.style.color = 'black';
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.textContent = message;
+        }
+        
+        function runFullTest() {
+            logOutput('Starting full test...', 'info');
+            updateStatus('Running tests...', 'info');
+            
+            try {
+                // Test 1: Chess.js library
+                logOutput('Test 1: Checking Chess.js library...', 'info');
+                if (typeof Chess === 'undefined') {
+                    throw new Error('Chess.js library not found');
+                }
+                const chess = new Chess();
+                logOutput('✓ Chess.js library loaded and working', 'success');
+                
+                // Test 2: ChessGame class
+                logOutput('Test 2: Checking ChessGame class...', 'info');
+                if (typeof ChessGame === 'undefined') {
+                    throw new Error('ChessGame class not found');
+                }
+                const game = new ChessGame();
+                logOutput('✓ ChessGame class loaded and working', 'success');
+                
+                // Test 3: Game initialization
+                logOutput('Test 3: Checking game initialization...', 'info');
+                const boardState = game.getBoardState();
+                if (!boardState || !boardState.board) {
+                    throw new Error('Board state not available');
+                }
+                logOutput('✓ Game initialized successfully', 'success');
+                logOutput(`Current player: ${boardState.currentPlayer}`, 'info');
+                
+                // Test 4: Board structure
+                logOutput('Test 4: Checking board structure...', 'info');
+                if (boardState.board.length !== 8) {
+                    throw new Error('Board does not have 8 rows');
+                }
+                logOutput('✓ Board has correct dimensions', 'success');
+                
+                // Test 5: Initial pieces
+                logOutput('Test 5: Checking initial pieces...', 'info');
+                const whiteRook = boardState.board[7][0];
+                const blackRook = boardState.board[0][0];
+                if (!whiteRook || whiteRook.color !== 'w' || whiteRook.type !== 'r') {
+                    throw new Error('White rook not found at expected position');
+                }
+                if (!blackRook || blackRook.color !== 'b' || blackRook.type !== 'r') {
+                    throw new Error('Black rook not found at expected position');
+                }
+                logOutput('✓ Initial pieces in correct positions', 'success');
+                
+                // Test 6: Color conversion logic
+                logOutput('Test 6: Testing color conversion logic...', 'info');
+                const pieceColorWhite = whiteRook.color === 'w' ? 'white' : 'black';
+                const pieceColorBlack = blackRook.color === 'b' ? 'black' : 'white';
+                if (pieceColorWhite !== 'white' || pieceColorBlack !== 'black') {
+                    throw new Error('Color conversion logic failed');
+                }
+                logOutput('✓ Color conversion working correctly', 'success');
+                
+                // Test 7: Player comparison
+                logOutput('Test 7: Testing player comparison...', 'info');
+                const currentPlayer = game.getCurrentPlayer();
+                logOutput(`Current player: ${currentPlayer}`, 'info');
+                
+                // For white player, white pieces should be selectable
+                if (currentPlayer === 'white') {
+                    const whitePieceColor = whiteRook.color === 'w' ? 'white' : 'black';
+                    if (whitePieceColor !== currentPlayer) {
+                        throw new Error('White piece selection logic error');
+                    }
+                    logOutput('✓ White piece selection logic correct', 'success');
+                }
+                
+                logOutput('All tests passed! The chess game should be working correctly.', 'success');
+                updateStatus('All tests passed! The chess game is ready to use.', 'success');
+                document.getElementById('runTest').className = 'success';
+                
+            } catch (error) {
+                logOutput(`Test failed: ${error.message}`, 'error');
+                updateStatus(`Test failed: ${error.message}`, 'error');
+                document.getElementById('runTest').className = 'error';
+            }
+        }
+        
+        function testPieceInteraction() {
+            try {
+                logOutput('Testing piece interaction logic...', 'info');
+                const game = new ChessGame();
+                const boardState = game.getBoardState();
+                
+                // Test white piece selection
+                const whitePiece = boardState.board[7][0]; // White rook
+                if (whitePiece) {
+                    const pieceColor = whitePiece.color === 'w' ? 'white' : 'black';
+                    const canSelect = pieceColor === boardState.currentPlayer;
+                    logOutput(`White rook at [7][0]: color=${pieceColor}, current player=${boardState.currentPlayer}, can select=${canSelect}`, 'info');
+                }
+                
+                // Test black piece selection
+                const blackPiece = boardState.board[0][0]; // Black rook
+                if (blackPiece) {
+                    const pieceColor = blackPiece.color === 'b' ? 'black' : 'white';
+                    const canSelect = pieceColor === boardState.currentPlayer;
+                    logOutput(`Black rook at [0][0]: color=${pieceColor}, current player=${boardState.currentPlayer}, can select=${canSelect}`, 'info');
+                }
+                
+                logOutput('Piece interaction test completed', 'success');
+            } catch (error) {
+                logOutput(`Piece interaction test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testMoveGeneration() {
+            try {
+                logOutput('Testing move generation...', 'info');
+                const chess = new Chess();
+                
+                // Test initial moves for white
+                const moves = chess.moves({ verbose: true });
+                logOutput(`Initial legal moves for ${chess.turn()}: ${moves.length}`, 'info');
+                
+                if (moves.length === 0) {
+                    throw new Error('No legal moves generated');
+                }
+                
+                // Test a few moves
+                const firstMove = moves[0];
+                logOutput(`First available move: ${firstMove.from} -> ${firstMove.to}`, 'info');
+                
+                // Try to make the move
+                const result = chess.move(firstMove);
+                if (result) {
+                    logOutput(`Move successful: ${result.from} -> ${result.to}`, 'success');
+                    
+                    // Undo the move
+                    chess.undo();
+                    logOutput('Move undone successfully', 'success');
+                } else {
+                    throw new Error('Failed to make move');
+                }
+                
+                logOutput('Move generation test completed', 'success');
+            } catch (error) {
+                logOutput(`Move generation test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Run a quick check on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                logOutput('Page loaded successfully', 'info');
+                logOutput('Click "Run Full Test" to verify all functionality', 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

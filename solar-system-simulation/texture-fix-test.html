@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Texture Fix Test</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        canvas { border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>🔧 Texture Fix Test - Before/After</h3>
+        <div id="texture-status">🎨 Testing texture application...</div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        console.log('🔧 TEXTURE FIX: Testing texture application...');
+        
+        // Create scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Test 1: Current broken approach (MeshPhongMaterial with complex setup)
+        const brokenGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const brokenMaterial = new THREE.MeshPhongMaterial({ 
+            shininess: 100,
+            color: 0x6b93d6  // Fallback color
+        });
+        const brokenPlanet = new THREE.Mesh(brokenGeometry, brokenMaterial);
+        brokenPlanet.position.set(-3, 0, 0);
+        scene.add(brokenPlanet);
+        
+        // Test 2: Working approach (Direct texture application)
+        const workingGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const workingMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x6b93d6  // Fallback color
+        });
+        const workingPlanet = new THREE.Mesh(workingGeometry, workingMaterial);
+        workingPlanet.position.set(3, 0, 0);
+        scene.add(workingPlanet);
+        
+        // Add light for PhongMaterial to work
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+        
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+        scene.add(ambientLight);
+        
+        // Position camera
+        camera.position.set(0, 2, 8);
+        camera.lookAt(0, 0, 0);
+        
+        // Test texture loading
+        const textureLoader = new THREE.TextureLoader();
+        
+        // Load texture for both planets
+        console.log('🔧 TEXTURE FIX: Loading Earth texture...');
+        textureLoader.load(
+            'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg',
+            (texture) => {
+                console.log('🔧 TEXTURE FIX: ✅ Texture loaded successfully');
+                
+                // Apply to "broken" planet (current method)
+                console.log('🔧 TEXTURE FIX: Applying to broken planet (left)...');
+                brokenPlanet.material.map = texture;
+                brokenPlanet.material.needsUpdate = true;
+                
+                // Apply to working planet (proven method)
+                console.log('🔧 TEXTURE FIX: Applying to working planet (right)...');
+                workingPlanet.material.map = texture;
+                workingPlanet.material.needsUpdate = true;
+                
+                document.getElementById('texture-status').innerHTML = 
+                    '🎨 Texture: <span class="success">✅ Applied to both planets - Check visual difference!</span>';
+            },
+            (progress) => {
+                console.log('🔧 TEXTURE FIX: Loading progress...');
+            },
+            (error) => {
+                console.log('🔧 TEXTURE FIX: ❌ Failed to load texture');
+                document.getElementById('texture-status').innerHTML = 
+                    '🎨 Texture: <span class="error">❌ Failed to load texture</span>';
+            }
+        );
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate planets
+            brokenPlanet.rotation.y += 0.01;
+            workingPlanet.rotation.y += 0.01;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        console.log('🔧 TEXTURE FIX: Test setup complete!');
+        console.log('🔧 Left planet: MeshPhongMaterial (current approach)');
+        console.log('🔧 Right planet: MeshBasicMaterial (proven working)');
+        
+    </script>
+</body>
+</html>

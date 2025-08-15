@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Debug Solar System Issues</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #debug-panel { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.9); padding: 15px; width: 400px; z-index: 1000; border: 1px solid #333; max-height: 90vh; overflow-y: auto; }
+        .issue { margin: 10px 0; padding: 10px; border: 1px solid #444; }
+        .issue h3 { margin: 0 0 10px 0; color: #ffa500; }
+        .status { font-weight: bold; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        #console-output { background: #1a1a1a; padding: 10px; height: 200px; overflow-y: scroll; font-size: 10px; }
+        button { padding: 5px 10px; margin: 2px; background: #333; color: #fff; border: 1px solid #666; cursor: pointer; }
+        button:hover { background: #555; }
+    </style>
+</head>
+<body>
+    <div id="debug-panel">
+        <h2>🔧 Debug Panel</h2>
+        
+        <div class="issue">
+            <h3>🖱️ Mouse Zoom Test</h3>
+            <div id="zoom-status" class="status">Testing...</div>
+            <button onclick="testZoom()">Test Zoom Manually</button>
+        </div>
+        
+        <div class="issue">
+            <h3>🎨 Texture Loading Test</h3>
+            <div id="texture-status" class="status">Testing...</div>
+            <button onclick="testTextures()">Test Texture Loading</button>
+        </div>
+        
+        <div class="issue">
+            <h3>📱 Console Output</h3>
+            <div id="console-output">Console logs will appear here...</div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/planetData.js"></script>
+    <script src="js/textureLoader.js"></script>
+    <script src="js/cameraControls.js"></script>
+    
+    <script>
+        // Capture console logs
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        
+        const consoleOutput = document.getElementById('console-output');
+        
+        function addToConsole(type, message) {
+            const div = document.createElement('div');
+            div.style.color = type === 'error' ? '#f44336' : type === 'warn' ? '#ff9800' : '#4caf50';
+            div.textContent = `[${type.toUpperCase()}] ${message}`;
+            consoleOutput.appendChild(div);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            addToConsole('log', args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            addToConsole('error', args.join(' '));
+        };
+        
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, args);
+            addToConsole('warn', args.join(' '));
+        };
+        
+        // Test scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Test sphere
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x6b93d6 });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+        
+        camera.position.set(0, 0, 5);
+        
+        // Initialize camera controls
+        let cameraControls;
+        try {
+            cameraControls = new CameraControls(camera, renderer.domElement, scene);
+            document.getElementById('zoom-status').innerHTML = '<span class="warning">Camera controls created, testing zoom...</span>';
+        } catch (error) {
+            document.getElementById('zoom-status').innerHTML = '<span class="error">Failed to create camera controls: ' + error.message + '</span>';
+        }
+        
+        // Test zoom function
+        function testZoom() {
+            console.log('🔧 MANUAL ZOOM TEST: Starting manual zoom test');
+            if (cameraControls) {
+                const oldPosition = camera.position.clone();
+                console.log('🔧 MANUAL ZOOM TEST: Current camera position:', oldPosition.x, oldPosition.y, oldPosition.z);
+                
+                // Simulate zoom in
+                cameraControls.dollyIn(0.9);
+                cameraControls.update();
+                
+                const newPosition = camera.position.clone();
+                console.log('🔧 MANUAL ZOOM TEST: New camera position:', newPosition.x, newPosition.y, newPosition.z);
+                
+                const distance = oldPosition.distanceTo(newPosition);
+                if (distance > 0.01) {
+                    document.getElementById('zoom-status').innerHTML = '<span class="success">✅ Zoom working! Distance moved: ' + distance.toFixed(3) + '</span>';
+                } else {
+                    document.getElementById('zoom-status').innerHTML = '<span class="error">❌ Zoom not working - camera didn\'t move</span>';
+                }
+            }
+        }
+        
+        // Test texture loading
+        async function testTextures() {
+            console.log('🔧 TEXTURE TEST: Starting texture test');
+            
+            try {
+                const textureLoader = new TextureLoader();
+                console.log('🔧 TEXTURE TEST: TextureLoader created:', textureLoader);
+                
+                // Test with Earth data
+                const earthData = PLANETARY_DATA.earth;
+                console.log('🔧 TEXTURE TEST: Earth data:', earthData);
+                console.log('🔧 TEXTURE TEST: Earth texture URL:', earthData.textureUrl);
+                
+                document.getElementById('texture-status').innerHTML = '<span class="warning">Loading Earth texture...</span>';
+                
+                const texture = await textureLoader.loadTexture(earthData.textureUrl, {
+                    color: earthData.color
+                });
+                
+                console.log('🔧 TEXTURE TEST: Texture result:', texture);
+                
+                if (texture) {
+                    sphere.material.map = texture;
+                    sphere.material.needsUpdate = true;
+                    document.getElementById('texture-status').innerHTML = '<span class="success">✅ Texture loaded and applied!</span>';
+                } else {
+                    document.getElementById('texture-status').innerHTML = '<span class="error">❌ No texture returned</span>';
+                }
+                
+            } catch (error) {
+                console.error('🔧 TEXTURE TEST: Error:', error);
+                document.getElementById('texture-status').innerHTML = '<span class="error">❌ Texture test failed: ' + error.message + '</span>';
+            }
+        }
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            sphere.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        
+        // Start everything
+        console.log('🔧 DEBUG PAGE: Starting debug tests...');
+        testTextures();
+        animate();
+        
+        // Auto-test zoom after a delay
+        setTimeout(() => {
+            testZoom();
+        }, 2000);
+        
+    </script>
+</body>
+</html>

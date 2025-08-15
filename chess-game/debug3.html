@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chess Deep Debug</title>
+</head>
+<body>
+    <h1>Chess Game Deep Debug</h1>
+    <div id="debug-info"></div>
+    
+    <!-- Include chess.js library -->
+    <script src="js/chess.js"></script>
+    <script src="js/ChessGame.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const debugInfo = document.getElementById('debug-info');
+            
+            try {
+                debugInfo.innerHTML += '<p>Initializing chess game...</p>';
+                
+                // Test ChessGame class
+                if (typeof ChessGame !== 'undefined') {
+                    debugInfo.innerHTML += '<p>✓ ChessGame class found</p>';
+                    const chessGame = new ChessGame();
+                    debugInfo.innerHTML += '<p>✓ ChessGame instance created</p>';
+                    
+                    // Test board state
+                    debugInfo.innerHTML += '<p>Getting board state...</p>';
+                    const boardState = chessGame.getBoardState();
+                    console.log('Board state:', boardState);
+                    debugInfo.innerHTML += `<p>Board state object: ${typeof boardState}</p>`;
+                    debugInfo.innerHTML += `<p>Current player: ${boardState.currentPlayer}</p>`;
+                    debugInfo.innerHTML += `<p>Board array: ${Array.isArray(boardState.board)}</p>`;
+                    
+                    // Test specific square
+                    debugInfo.innerHTML += '<p>Checking specific squares...</p>';
+                    const piece00 = boardState.board[0][0];
+                    debugInfo.innerHTML += `<p>Piece at 0,0: ${JSON.stringify(piece00)}</p>`;
+                    
+                    const piece70 = boardState.board[7][0];
+                    debugInfo.innerHTML += `<p>Piece at 7,0: ${JSON.stringify(piece70)}</p>`;
+                    
+                    // Test ChessGame methods
+                    debugInfo.innerHTML += '<p>Testing ChessGame methods...</p>';
+                    debugInfo.innerHTML += `<p>getCurrentPlayer(): ${chessGame.getCurrentPlayer()}</p>`;
+                    debugInfo.innerHTML += `<p>isComputerTurn(): ${chessGame.isComputerTurn()}</p>`;
+                    debugInfo.innerHTML += `<p>gameMode: ${chessGame.gameMode}</p>`;
+                    
+                } else {
+                    debugInfo.innerHTML += '<p>✗ ChessGame class not found</p>';
+                }
+            } catch (error) {
+                debugInfo.innerHTML += `<p>✗ Error: ${error.message}</p>`;
+                console.error('Debug error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

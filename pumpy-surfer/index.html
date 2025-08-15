@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pumpy Surfer - Ride the Waves!</title>
+    <meta name="description" content="A Flappy Bird-inspired HTML5 Canvas game where you control a surfer riding waves">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+        
+        <div id="game-ui">
+            <div id="score">Score: 0</div>
+            <div id="high-score">High Score: 0</div>
+        </div>
+        
+        <div id="start-screen">
+            <h1>Pumpy Surfer</h1>
+            <h2>Ride the Waves!</h2>
+            <div class="instructions">
+                <p>Press <span class="highlight">SPACEBAR</span> or <span class="highlight">CLICK</span> to pump and keep your surfer on the wave.</p>
+                <p>Avoid crashing into the whitewater or falling off the wave!</p>
+            </div>
+            <button id="start-button">Start Game</button>
+        </div>
+        
+        <div id="game-over-screen">
+            <h2>Game Over!</h2>
+            <p>Your score: <span id="final-score">0</span></p>
+            <p id="game-over-reason">You fell off the wave!</p>
+            <button id="restart-button">Play Again</button>
+        </div>
+    </div>
+
+    <!-- Include the game logic -->
+    <script src="js/game.js"></script>
+</body>
+</html>

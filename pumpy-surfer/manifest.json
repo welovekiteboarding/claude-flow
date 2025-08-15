@@ -1,0 +1,22 @@
+{
+  "name": "Pumpy Surfer",
+  "short_name": "Pumpy Surfer",
+  "description": "A Flappy Bird-inspired HTML5 Canvas game where you control a surfer riding waves",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#87CEEB",
+  "theme_color": "#1E90FF",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+      "purpose": "any"
+    }
+  ]
+}

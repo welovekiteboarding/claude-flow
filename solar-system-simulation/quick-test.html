@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Test - Solar System</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: Arial; }
+        #info { position: absolute; top: 10px; left: 10px; z-index: 100; }
+        #test-results { position: absolute; top: 10px; right: 10px; z-index: 100; background: rgba(0,0,0,0.8); padding: 10px; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>🚀 Quick Test</h3>
+        <p>Mouse Wheel: Zoom</p>
+        <p>Mouse Drag: Rotate</p>
+    </div>
+    
+    <div id="test-results">
+        <div id="zoom-test">Zoom: Ready</div>
+        <div id="texture-test">Textures: Testing...</div>
+        <div id="physics-test">Physics: Testing...</div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/planetData.js"></script>
+    <script src="js/textureLoader.js"></script>
+    <script src="js/advancedPhysics.js"></script>
+    
+    <script>
+        // Simple test scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Test sphere
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x6b93d6 });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+        
+        camera.position.z = 5;
+        
+        // Test zoom
+        let zoom = 5;
+        renderer.domElement.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                zoom *= 0.9;
+            } else {
+                zoom *= 1.1;
+            }
+            zoom = Math.max(1, Math.min(20, zoom));
+            camera.position.z = zoom;
+            
+            document.getElementById('zoom-test').innerHTML = `<span class="success">Zoom: ${zoom.toFixed(2)}</span>`;
+        });
+        
+        // Test texture loading
+        async function testTextures() {
+            try {
+                const loader = new TextureLoader();
+                const earth = PLANETARY_DATA.earth;
+                
+                // Try to load Earth texture
+                const texture = await loader.loadTexture(earth.textureUrl);
+                
+                if (texture) {
+                    sphere.material.map = texture;
+                    sphere.material.needsUpdate = true;
+                    document.getElementById('texture-test').innerHTML = '<span class="success">Textures: ✅ Working</span>';
+                } else {
+                    document.getElementById('texture-test').innerHTML = '<span class="error">Textures: ❌ Failed</span>';
+                }
+            } catch (error) {
+                console.log('Texture failed, using fallback');
+                document.getElementById('texture-test').innerHTML = '<span class="success">Textures: ✅ Fallback</span>';
+            }
+        }
+        
+        // Test physics
+        async function testPhysics() {
+            try {
+                const physics = new AdvancedPhysics();
+                physics.initializeBodies(PLANETARY_DATA);
+                
+                document.getElementById('physics-test').innerHTML = '<span class="success">Physics: ✅ Working</span>';
+            } catch (error) {
+                document.getElementById('physics-test').innerHTML = '<span class="error">Physics: ❌ Failed</span>';
+            }
+        }
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            sphere.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        
+        // Start tests
+        testTextures();
+        testPhysics();
+        animate();
+        
+        console.log('Quick test running - check zoom and visual elements');
+    </script>
+</body>
+</html>

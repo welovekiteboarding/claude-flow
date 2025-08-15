@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🌟 Main Simulation Test</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; max-width: 400px; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        #console { background: #111; max-height: 150px; overflow-y: auto; font-size: 10px; margin-top: 10px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>🌟 Main Simulation Components Test</h3>
+        <div id="texture-loader-status">📦 TextureLoader: Testing...</div>
+        <div id="camera-controls-status">🖱️ CameraControls: Testing...</div>
+        <div id="planet-data-status">🌍 PlanetData: Testing...</div>
+        <div id="zoom-test-status">🔍 Zoom Test: Ready</div>
+        <hr>
+        <strong>Use mouse wheel to test zoom</strong>
+        <div id="console"></div>
+    </div>
+    
+    <!-- Load all the scripts that main simulation uses -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/planetData.js"></script>
+    <script src="js/textureLoader.js"></script>
+    <script src="js/cameraControls.js"></script>
+    
+    <script>
+        // Capture console logs
+        const consoleDiv = document.getElementById('console');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const div = document.createElement('div');
+            div.style.color = '#4caf50';
+            div.textContent = '[LOG] ' + args.join(' ');
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const div = document.createElement('div');
+            div.style.color = '#f44336';
+            div.textContent = '[ERROR] ' + args.join(' ');
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        // Test components
+        console.log('🌟 MAIN SIM TEST: Starting component tests...');
+        
+        // Test 1: TextureLoader global availability
+        setTimeout(() => {
+            if (typeof window.textureLoader !== 'undefined') {
+                document.getElementById('texture-loader-status').innerHTML = 
+                    '📦 TextureLoader: <span class="success">✅ Global instance available</span>';
+                console.log('✅ TextureLoader global instance found');
+            } else if (typeof textureLoader !== 'undefined') {
+                document.getElementById('texture-loader-status').innerHTML = 
+                    '📦 TextureLoader: <span class="warning">⚠️ Local instance found</span>';
+                console.log('⚠️ TextureLoader local instance found (may cause issues)');
+            } else {
+                document.getElementById('texture-loader-status').innerHTML = 
+                    '📦 TextureLoader: <span class="error">❌ Not found</span>';
+                console.log('❌ TextureLoader not found');
+            }
+        }, 100);
+        
+        // Test 2: Planet Data
+        setTimeout(() => {
+            if (typeof PLANETARY_DATA !== 'undefined' && PLANETARY_DATA.earth) {
+                const earthTextureUrl = PLANETARY_DATA.earth.textureUrl;
+                console.log('✅ PLANETARY_DATA loaded');
+                console.log('Earth texture URL:', earthTextureUrl);
+                
+                if (earthTextureUrl.includes('raw.githubusercontent.com')) {
+                    document.getElementById('planet-data-status').innerHTML = 
+                        '🌍 PlanetData: <span class="success">✅ Updated Earth texture URL</span>';
+                } else {
+                    document.getElementById('planet-data-status').innerHTML = 
+                        '🌍 PlanetData: <span class="warning">⚠️ Old texture URL (may fail)</span>';
+                }
+            } else {
+                document.getElementById('planet-data-status').innerHTML = 
+                    '🌍 PlanetData: <span class="error">❌ Not loaded</span>';
+                console.log('❌ PLANETARY_DATA not found');
+            }
+        }, 200);
+        
+        // Test 3: Camera Controls with actual scene
+        setTimeout(() => {
+            try {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+                
+                // Add test sphere
+                const geometry = new THREE.SphereGeometry(1, 16, 16);
+                const material = new THREE.MeshBasicMaterial({ color: 0x4CAF50, wireframe: true });
+                const sphere = new THREE.Mesh(geometry, material);
+                scene.add(sphere);
+                
+                // Position camera like main simulation does
+                camera.position.set(0, 10, 25); // SIMULATION_CONSTANTS.CAMERA_INITIAL_DISTANCE = 25
+                
+                // Test camera controls creation (like main simulation)
+                const cameraControls = new CameraControls(camera, renderer.domElement, scene);
+                cameraControls.setTarget(new THREE.Vector3(0, 0, 0));
+                cameraControls.setDistance(25);
+                cameraControls.initializeSphericalFromCamera(); // The critical fix
+                
+                console.log('✅ CameraControls created successfully');
+                console.log('Initial spherical radius:', cameraControls.spherical.radius);
+                console.log('Initial camera position:', camera.position.x, camera.position.y, camera.position.z);
+                
+                document.getElementById('camera-controls-status').innerHTML = 
+                    '🖱️ CameraControls: <span class="success">✅ Created with fix applied</span>';
+                
+                // Monitor zoom events
+                let zoomEvents = 0;
+                renderer.domElement.addEventListener('wheel', (event) => {
+                    zoomEvents++;
+                    const beforePos = camera.position.clone();
+                    
+                    setTimeout(() => {
+                        const afterPos = camera.position.clone();
+                        const distance = beforePos.distanceTo(afterPos);
+                        
+                        console.log(`Zoom event #${zoomEvents}: moved ${distance.toFixed(4)} units`);
+                        
+                        if (distance > 0.001) {
+                            document.getElementById('zoom-test-status').innerHTML = 
+                                `🔍 Zoom Test: <span class="success">✅ Working! (${zoomEvents} events, ${distance.toFixed(3)} movement)</span>`;
+                        } else {
+                            document.getElementById('zoom-test-status').innerHTML = 
+                                `🔍 Zoom Test: <span class="error">❌ Not working (${zoomEvents} events, no movement)</span>`;
+                        }
+                    }, 50);
+                });
+                
+                // Render loop
+                function animate() {
+                    requestAnimationFrame(animate);
+                    cameraControls.update();
+                    sphere.rotation.y += 0.005;
+                    renderer.render(scene, camera);
+                }
+                animate();
+                
+            } catch (error) {
+                console.error('❌ CameraControls creation failed:', error);
+                document.getElementById('camera-controls-status').innerHTML = 
+                    '🖱️ CameraControls: <span class="error">❌ Creation failed</span>';
+            }
+        }, 300);
+        
+        console.log('🌟 MAIN SIM TEST: All tests initialized');
+        
+    </script>
+</body>
+</html>

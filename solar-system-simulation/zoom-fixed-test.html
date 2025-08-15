@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚀 Fixed Zoom Test</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        canvas { border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>🚀 Fixed Zoom Test</h3>
+        <div id="camera-info">Camera: Loading...</div>
+        <div id="distance-info">Distance: Loading...</div>
+        <div id="zoom-info">Zoom: Loading...</div>
+        <div><strong>Use mouse wheel to test zoom</strong></div>
+        <div><strong>Compare with immediate-fix.html</strong></div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/cameraControls-fixed.js"></script>
+    
+    <script>
+        // Create basic scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Add test objects (same as immediate-fix.html)
+        const earthGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const earthMaterial = new THREE.MeshBasicMaterial({ color: 0x6b93d6 });
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        scene.add(earth);
+        
+        const marsGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+        const marsMaterial = new THREE.MeshBasicMaterial({ color: 0xcd5c5c });
+        const mars = new THREE.Mesh(marsGeometry, marsMaterial);
+        mars.position.set(3, 0, 0);
+        scene.add(mars);
+        
+        const jupiterGeometry = new THREE.SphereGeometry(2, 32, 32);
+        const jupiterMaterial = new THREE.MeshBasicMaterial({ color: 0xd2691e });
+        const jupiter = new THREE.Mesh(jupiterGeometry, jupiterMaterial);
+        jupiter.position.set(-5, 0, 0);
+        scene.add(jupiter);
+        
+        // Position camera like immediate-fix.html
+        camera.position.set(0, 10, 25);
+        camera.lookAt(0, 0, 0);
+        
+        // Initialize FIXED camera controls
+        const cameraControls = new CameraControls(camera, renderer.domElement, scene);
+        
+        // Update status display
+        function updateStatus() {
+            document.getElementById('camera-info').innerHTML = 
+                `Camera: (${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)})`;
+            document.getElementById('distance-info').innerHTML = 
+                `Distance: <span class="success">${cameraControls.distance.toFixed(2)}</span>`;
+            document.getElementById('zoom-info').innerHTML = 
+                `Zoom: <span class="success">✅ Fixed Implementation Active</span>`;
+        }
+        
+        // Test zoom functionality
+        console.log('🚀 FIXED ZOOM TEST: Starting with fixed camera controls');
+        console.log('🚀 FIXED: Initial camera position:', camera.position.x, camera.position.y, camera.position.z);
+        console.log('🚀 FIXED: Initial distance:', cameraControls.distance);
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update camera controls
+            cameraControls.update();
+            
+            // Update status
+            updateStatus();
+            
+            // Rotate planets
+            earth.rotation.y += 0.01;
+            mars.rotation.y += 0.015;
+            jupiter.rotation.y += 0.005;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Add manual zoom test buttons
+        const testButtons = document.createElement('div');
+        testButtons.style.cssText = 'position: fixed; bottom: 20px; left: 20px; z-index: 1000;';
+        testButtons.innerHTML = `
+            <button onclick="manualZoomIn()" style="margin-right: 10px;">Manual Zoom In</button>
+            <button onclick="manualZoomOut()" style="margin-right: 10px;">Manual Zoom Out</button>
+            <button onclick="resetView()">Reset View</button>
+        `;
+        document.body.appendChild(testButtons);
+        
+        function manualZoomIn() {
+            console.log('🚀 FIXED MANUAL ZOOM IN: Before -', cameraControls.distance);
+            cameraControls.dollyIn();
+            cameraControls.update();
+            console.log('🚀 FIXED MANUAL ZOOM IN: After -', cameraControls.distance);
+        }
+        
+        function manualZoomOut() {
+            console.log('🚀 FIXED MANUAL ZOOM OUT: Before -', cameraControls.distance);
+            cameraControls.dollyOut();
+            cameraControls.update();
+            console.log('🚀 FIXED MANUAL ZOOM OUT: After -', cameraControls.distance);
+        }
+        
+        function resetView() {
+            cameraControls.distance = 25;
+            cameraControls.updateCameraPosition();
+            console.log('🚀 FIXED: View reset to distance 25');
+        }
+        
+        console.log('🚀 FIXED ZOOM TEST: Setup complete. Try mouse wheel and manual buttons.');
+        console.log('🚀 FIXED: This should work exactly like immediate-fix.html');
+    </script>
+</body>
+</html>

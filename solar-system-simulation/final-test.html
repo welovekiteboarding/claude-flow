@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🎯 Final Fix Test</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; max-width: 400px; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        #console { background: #111; max-height: 200px; overflow-y: auto; font-size: 10px; margin-top: 10px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>🎯 Final Fix Test</h3>
+        <div id="zoom-status">🖱️ Zoom: Testing...</div>
+        <div id="texture-status">🎨 Texture: Testing...</div>
+        <div id="camera-info">📷 Camera: --</div>
+        <hr>
+        <strong>Use mouse wheel to test zoom</strong>
+        <div id="console"></div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Minimal inline TextureLoader to avoid file issues
+        class SimpleTextureLoader {
+            constructor() {
+                this.loader = new THREE.TextureLoader();
+            }
+            
+            async loadTexture(url, options = {}) {
+                console.log('🎨 TEXTURE: Loading', url);
+                return new Promise((resolve) => {
+                    this.loader.load(
+                        url,
+                        (texture) => {
+                            console.log('🎨 TEXTURE: ✅ Loaded', url);
+                            resolve(texture);
+                        },
+                        (progress) => {
+                            console.log('🎨 TEXTURE: Progress', progress);
+                        },
+                        (error) => {
+                            console.log('🎨 TEXTURE: ❌ Failed, using fallback');
+                            // Create a simple colored texture
+                            const canvas = document.createElement('canvas');
+                            canvas.width = 512;
+                            canvas.height = 256;
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Create Earth-like gradient
+                            const gradient = ctx.createLinearGradient(0, 0, 512, 256);
+                            gradient.addColorStop(0, '#4CAF50');
+                            gradient.addColorStop(0.5, '#2196F3');
+                            gradient.addColorStop(1, '#FFC107');
+                            ctx.fillStyle = gradient;
+                            ctx.fillRect(0, 0, 512, 256);
+                            
+                            const texture = new THREE.CanvasTexture(canvas);
+                            resolve(texture);
+                        }
+                    );
+                });
+            }
+        }
+        
+        // Minimal inline CameraControls with only zoom functionality
+        class SimpleCameraControls {
+            constructor(camera, domElement) {
+                this.camera = camera;
+                this.domElement = domElement;
+                this.target = new THREE.Vector3(0, 0, 0);
+                this.spherical = new THREE.Spherical();
+                this.minDistance = 1;
+                this.maxDistance = 100;
+                this.zoomSpeed = 1.0;
+                
+                // Initialize from camera position
+                const offset = new THREE.Vector3();
+                offset.copy(this.camera.position).sub(this.target);
+                this.spherical.setFromVector3(offset);
+                
+                console.log('🖱️ ZOOM: Initialized, radius:', this.spherical.radius);
+                
+                // Add wheel event
+                this.domElement.addEventListener('wheel', this.onWheel.bind(this));
+            }
+            
+            onWheel(event) {
+                event.preventDefault();
+                console.log('🖱️ ZOOM: Wheel event, deltaY:', event.deltaY);
+                
+                const zoomScale = Math.pow(0.95, this.zoomSpeed);
+                const oldRadius = this.spherical.radius;
+                
+                if (event.deltaY < 0) {
+                    // Zoom in
+                    this.spherical.radius = Math.max(this.minDistance, this.spherical.radius * zoomScale);
+                    console.log('🖱️ ZOOM: Zooming IN');
+                } else {
+                    // Zoom out
+                    this.spherical.radius = Math.min(this.maxDistance, this.spherical.radius / zoomScale);
+                    console.log('🖱️ ZOOM: Zooming OUT');
+                }
+                
+                console.log('🖱️ ZOOM: Radius changed from', oldRadius.toFixed(3), 'to', this.spherical.radius.toFixed(3));
+                
+                this.updateCamera();
+            }
+            
+            updateCamera() {
+                const offset = new THREE.Vector3();
+                offset.setFromSpherical(this.spherical);
+                this.camera.position.copy(this.target).add(offset);
+                this.camera.lookAt(this.target);
+                
+                console.log('🖱️ ZOOM: Camera position updated to:', 
+                    this.camera.position.x.toFixed(3), 
+                    this.camera.position.y.toFixed(3), 
+                    this.camera.position.z.toFixed(3));
+            }
+        }
+        
+        // Capture console logs
+        const consoleDiv = document.getElementById('console');
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const div = document.createElement('div');
+            div.textContent = args.join(' ');
+            consoleDiv.appendChild(div);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        
+        // Setup scene
+        console.log('🎯 FINAL TEST: Starting...');
+        
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Create Earth sphere
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x6b93d6 });
+        const earth = new THREE.Mesh(geometry, material);
+        scene.add(earth);
+        
+        // Position camera
+        camera.position.set(0, 0, 5);
+        
+        // Test texture loading
+        async function testTexture() {
+            const loader = new SimpleTextureLoader();
+            try {
+                // Try a different Earth texture URL (more reliable)
+                const texture = await loader.loadTexture('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg');
+                earth.material.map = texture;
+                earth.material.needsUpdate = true;
+                document.getElementById('texture-status').innerHTML = '🎨 Texture: <span class="success">✅ Loaded</span>';
+            } catch (error) {
+                document.getElementById('texture-status').innerHTML = '🎨 Texture: <span class="warning">⚠️ Fallback Used</span>';
+            }
+        }
+        
+        // Test camera controls
+        const controls = new SimpleCameraControls(camera, renderer.domElement);
+        let zoomEvents = 0;
+        
+        // Monitor zoom events
+        renderer.domElement.addEventListener('wheel', () => {
+            zoomEvents++;
+            setTimeout(() => {
+                document.getElementById('zoom-status').innerHTML = 
+                    `🖱️ Zoom: <span class="success">✅ Working (${zoomEvents} events)</span>`;
+                document.getElementById('camera-info').textContent = 
+                    `📷 Camera: (${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)})`;
+            }, 50);
+        });
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            earth.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+        
+        // Start everything
+        testTexture();
+        animate();
+        
+        console.log('🎯 FINAL TEST: Ready! Use mouse wheel to test zoom.');
+        
+    </script>
+</body>
+</html>

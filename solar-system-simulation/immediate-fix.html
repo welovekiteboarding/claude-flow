@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔥 Immediate Fix Test</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        canvas { border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>🔥 Immediate Fix - Direct Implementation</h3>
+        <div id="zoom-status">🖱️ Zoom: Testing...</div>
+        <div id="texture-status">🎨 Texture: Testing...</div>
+        <div><strong>Use mouse wheel to zoom</strong></div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        console.log('🔥 IMMEDIATE FIX: Starting direct implementation...');
+        
+        // Create scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Create Earth with texture (direct implementation)
+        const earthGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const earthMaterial = new THREE.MeshBasicMaterial({ color: 0x6b93d6 });
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        scene.add(earth);
+        
+        // Add some other planets for visual reference
+        const marsGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+        const marsMaterial = new THREE.MeshBasicMaterial({ color: 0xcd5c5c });
+        const mars = new THREE.Mesh(marsGeometry, marsMaterial);
+        mars.position.set(3, 0, 0);
+        scene.add(mars);
+        
+        const jupiterGeometry = new THREE.SphereGeometry(2, 32, 32);
+        const jupiterMaterial = new THREE.MeshBasicMaterial({ color: 0xd2691e });
+        const jupiter = new THREE.Mesh(jupiterGeometry, jupiterMaterial);
+        jupiter.position.set(-5, 0, 0);
+        scene.add(jupiter);
+        
+        // Position camera like main simulation
+        camera.position.set(0, 10, 25);
+        camera.lookAt(0, 0, 0);
+        
+        // DIRECT ZOOM IMPLEMENTATION (no external files)
+        let cameraDistance = 25;
+        const minDistance = 5;
+        const maxDistance = 100;
+        
+        renderer.domElement.addEventListener('wheel', (event) => {
+            event.preventDefault();
+            console.log('🔥 ZOOM: Wheel event detected, deltaY:', event.deltaY);
+            
+            const zoomScale = 0.95;
+            const oldDistance = cameraDistance;
+            
+            if (event.deltaY < 0) {
+                // Zoom in
+                cameraDistance = Math.max(minDistance, cameraDistance * zoomScale);
+                console.log('🔥 ZOOM: Zooming IN');
+            } else {
+                // Zoom out
+                cameraDistance = Math.min(maxDistance, cameraDistance / zoomScale);
+                console.log('🔥 ZOOM: Zooming OUT');
+            }
+            
+            console.log('🔥 ZOOM: Distance changed from', oldDistance.toFixed(2), 'to', cameraDistance.toFixed(2));
+            
+            // Update camera position directly
+            const direction = new THREE.Vector3();
+            direction.copy(camera.position).normalize();
+            camera.position.copy(direction.multiplyScalar(cameraDistance));
+            
+            console.log('🔥 ZOOM: New camera position:', camera.position.x.toFixed(2), camera.position.y.toFixed(2), camera.position.z.toFixed(2));
+            
+            document.getElementById('zoom-status').innerHTML = 
+                `🖱️ Zoom: <span class="success">✅ Working! Distance: ${cameraDistance.toFixed(1)}</span>`;
+        });
+        
+        // DIRECT TEXTURE LOADING (no external files)
+        const textureLoader = new THREE.TextureLoader();
+        
+        // Load Earth texture
+        console.log('🔥 TEXTURE: Loading Earth texture...');
+        textureLoader.load(
+            'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg',
+            (texture) => {
+                console.log('🔥 TEXTURE: ✅ Earth texture loaded successfully');
+                earth.material.map = texture;
+                earth.material.needsUpdate = true;
+                document.getElementById('texture-status').innerHTML = 
+                    '🎨 Texture: <span class="success">✅ Earth texture applied!</span>';
+            },
+            (progress) => {
+                console.log('🔥 TEXTURE: Loading progress...');
+            },
+            (error) => {
+                console.log('🔥 TEXTURE: ❌ Failed, using backup...');
+                // Try backup texture
+                textureLoader.load(
+                    'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg',
+                    (backupTexture) => {
+                        earth.material.map = backupTexture;
+                        earth.material.needsUpdate = true;
+                        document.getElementById('texture-status').innerHTML = 
+                            '🎨 Texture: <span class="success">✅ Backup texture applied!</span>';
+                    },
+                    undefined,
+                    (backupError) => {
+                        console.log('🔥 TEXTURE: ❌ All texture URLs failed, using fallback color');
+                        earth.material.color.setHex(0x4CAF50);
+                        document.getElementById('texture-status').innerHTML = 
+                            '🎨 Texture: <span class="warning">⚠️ Using fallback color</span>';
+                    }
+                );
+            }
+        );
+        
+        // Load Mars texture
+        textureLoader.load(
+            'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/mars_1k_color.jpg',
+            (texture) => {
+                mars.material.map = texture;
+                mars.material.needsUpdate = true;
+                console.log('🔥 TEXTURE: ✅ Mars texture loaded');
+            },
+            undefined,
+            (error) => {
+                console.log('🔥 TEXTURE: Mars texture failed, keeping color');
+            }
+        );
+        
+        // Load Jupiter texture
+        textureLoader.load(
+            'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/jupiter_1024.jpg',
+            (texture) => {
+                jupiter.material.map = texture;
+                jupiter.material.needsUpdate = true;
+                console.log('🔥 TEXTURE: ✅ Jupiter texture loaded');
+            },
+            undefined,
+            (error) => {
+                console.log('🔥 TEXTURE: Jupiter texture failed, keeping color');
+            }
+        );
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate planets
+            earth.rotation.y += 0.01;
+            mars.rotation.y += 0.015;
+            jupiter.rotation.y += 0.005;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        console.log('🔥 IMMEDIATE FIX: Setup complete!');
+        console.log('🔥 Try mouse wheel to zoom in/out');
+        console.log('🔥 Initial camera distance:', cameraDistance);
+        
+    </script>
+</body>
+</html>

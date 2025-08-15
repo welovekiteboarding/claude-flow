@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>✅ Texture Fix Verification</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        canvas { border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>✅ Texture Fix Verification</h3>
+        <div id="texture-status">🎨 Loading textures...</div>
+        <div id="planet-count">🪐 Creating planets...</div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/textureLoader.js"></script>
+    <script src="js/planetFactory.js"></script>
+    <script src="js/planetData.js"></script>
+    
+    <script>
+        console.log('✅ TEXTURE FIX: Testing updated planet factory...');
+        
+        // Create scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Position camera
+        camera.position.set(0, 5, 15);
+        camera.lookAt(0, 0, 0);
+        
+        // Create planet factory
+        const planetFactory = new PlanetFactory(scene, window.textureLoader);\n        \n        // Test with a few key planets\n        const testPlanets = [\n            { name: 'Earth', position: { x: 0, y: 0, z: 0 } },\n            { name: 'Mars', position: { x: 4, y: 0, z: 0 } },\n            { name: 'Jupiter', position: { x: -4, y: 0, z: 0 } }\n        ];\n        \n        let planetsCreated = 0;\n        let texturesLoaded = 0;\n        \n        // Create planets\n        testPlanets.forEach(async (testPlanet) => {\n            try {\n                const planetData = PLANETARY_DATA[testPlanet.name.toLowerCase()];\n                if (!planetData) {\n                    console.log(`❌ No data for ${testPlanet.name}`);\n                    return;\n                }\n                \n                console.log(`✅ Creating ${testPlanet.name} with data:`, planetData);\n                \n                const planet = await planetFactory.createPlanet(testPlanet.name.toLowerCase(), planetData, false);\n                \n                if (planet) {\n                    planet.position.set(testPlanet.position.x, testPlanet.position.y, testPlanet.position.z);\n                    planetsCreated++;\n                    \n                    document.getElementById('planet-count').innerHTML = \n                        `🪐 Created: ${planetsCreated}/${testPlanets.length} planets`;\n                    \n                    // Check if texture was applied\n                    const mesh = planet.children.find(child => child.userData.type === 'planet');\n                    if (mesh && mesh.material && mesh.material.map) {\n                        texturesLoaded++;\n                        console.log(`✅ ${testPlanet.name} has texture applied`);\n                    } else {\n                        console.log(`⚠️ ${testPlanet.name} using fallback color`);\n                    }\n                    \n                    document.getElementById('texture-status').innerHTML = \n                        `🎨 Textures: ${texturesLoaded}/${planetsCreated} planets have visible textures`;\n                }\n            } catch (error) {\n                console.error(`❌ Failed to create ${testPlanet.name}:`, error);\n            }\n        });\n        \n        // Render loop\n        function animate() {\n            requestAnimationFrame(animate);\n            \n            // Rotate planets\n            planetFactory.animatePlanets(0.01);\n            \n            renderer.render(scene, camera);\n        }\n        \n        animate();\n        \n        console.log('✅ TEXTURE FIX: Test setup complete!');\n        \n    </script>\n</body>\n</html>

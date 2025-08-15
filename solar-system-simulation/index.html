@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Simulation - High Resolution 3D</title>
+    <meta name="description" content="Interactive 3D Solar System simulation with high-resolution textures, realistic orbits, and comprehensive controls.">
+    
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="solar-system-logo">
+                <div class="sun"></div>
+                <div class="planet planet1"></div>
+                <div class="planet planet2"></div>
+                <div class="planet planet3"></div>
+            </div>
+            <h1>Solar System Simulation</h1>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loading-progress"></div>
+            </div>
+            <div class="loading-text" id="loading-text">Loading textures...</div>
+        </div>
+    </div>
+
+    <!-- Main 3D Canvas -->
+    <canvas id="solar-system-canvas"></canvas>
+
+    <!-- UI Controls -->
+    <div id="ui-container">
+        <!-- Time Controls -->
+        <div class="control-panel" id="time-controls">
+            <h3>Time Controls</h3>
+            <div class="control-group">
+                <button id="play-pause-btn" class="btn btn-primary">
+                    <span class="icon">⏸️</span>
+                    <span class="text">Pause</span>
+                </button>
+                <button id="reset-btn" class="btn btn-secondary">
+                    <span class="icon">🔄</span>
+                    <span class="text">Reset</span>
+                </button>
+            </div>
+            <div class="control-group">
+                <label for="speed-slider">Speed: <span id="speed-value">1x</span></label>
+                <input type="range" id="speed-slider" min="0.1" max="10" step="0.1" value="1">
+            </div>
+            <div class="control-group">
+                <label for="time-scale">Time Scale:</label>
+                <select id="time-scale">
+                    <option value="1">Real Time</option>
+                    <option value="365.25">1 Day = 1 Year</option>
+                    <option value="30.44">1 Day = 1 Month</option>
+                    <option value="7">1 Day = 1 Week</option>
+                    <option selected value="0.1">Fast Simulation</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Planet Selection -->
+        <div class="control-panel" id="planet-selection">
+            <h3>Planet Focus</h3>
+            <div class="planet-buttons">
+                <button class="planet-btn" data-planet="sun">☀️ Sun</button>
+                <button class="planet-btn" data-planet="mercury">☿️ Mercury</button>
+                <button class="planet-btn" data-planet="venus">♀️ Venus</button>
+                <button class="planet-btn active" data-planet="earth">🌍 Earth</button>
+                <button class="planet-btn" data-planet="mars">♂️ Mars</button>
+                <button class="planet-btn" data-planet="jupiter">♃ Jupiter</button>
+                <button class="planet-btn" data-planet="saturn">♄ Saturn</button>
+                <button class="planet-btn" data-planet="uranus">♅ Uranus</button>
+                <button class="planet-btn" data-planet="neptune">♆ Neptune</button>
+            </div>
+        </div>
+
+        <!-- View Controls -->
+        <div class="control-panel" id="view-controls">
+            <h3>View Options</h3>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="show-orbits" checked>
+                    <span>Show Orbit Trails</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="show-labels" checked>
+                    <span>Show Planet Labels</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="show-moons" checked>
+                    <span>Show Moons</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="realistic-distances">
+                    <span>Realistic Distances</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Planet Information -->
+        <div class="control-panel" id="planet-info">
+            <h3 id="info-planet-name">Earth</h3>
+            <div class="info-content">
+                <div class="info-row">
+                    <span class="info-label">Distance from Sun:</span>
+                    <span class="info-value" id="info-distance">149.6 million km</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Diameter:</span>
+                    <span class="info-value" id="info-diameter">12,742 km</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Orbital Period:</span>
+                    <span class="info-value" id="info-period">365.25 days</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Day Length:</span>
+                    <span class="info-value" id="info-day">24 hours</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Moons:</span>
+                    <span class="info-value" id="info-moons">1</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Temperature:</span>
+                    <span class="info-value" id="info-temperature">15°C average</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Controls -->
+        <div class="control-panel" id="performance-controls">
+            <h3>Quality Settings</h3>
+            <div class="control-group">
+                <label for="quality-preset">Quality Preset:</label>
+                <select id="quality-preset">
+                    <option value="low">Low (Better Performance)</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High (Better Quality)</option>
+                    <option value="ultra">Ultra (Best Quality)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="orbit-segments">Orbit Detail:</label>
+                <input type="range" id="orbit-segments" min="32" max="256" step="32" value="128">
+                <span id="orbit-segments-value">128</span>
+            </div>
+        </div>
+
+        <!-- Advanced Physics Controls -->
+        <div class="control-panel" id="physics-controls">
+            <h3>Advanced Physics</h3>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="enable-nbody" checked>
+                    <span>N-body Dynamics</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="enable-relativity" checked>
+                    <span>Relativistic Effects</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="show-lagrange" checked>
+                    <span>Show Lagrange Points</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="show-tidal" checked>
+                    <span>Show Tidal Forces</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="show-gravity-field">
+                    <span>Show Gravity Field</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Atmosphere Controls -->
+        <div class="control-panel" id="atmosphere-controls">
+            <h3>Atmospheric Effects</h3>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="enable-atmospheres" checked>
+                    <span>Enable Atmospheres</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="enable-scattering" checked>
+                    <span>Rayleigh Scattering</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <label for="atmosphere-quality">Atmosphere Quality:</label>
+                <select id="atmosphere-quality">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                    <option value="ultra">Ultra</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- NASA Data Controls -->
+        <div class="control-panel" id="nasa-data-controls">
+            <h3>NASA Live Data</h3>
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="enable-live-data">
+                    <span>Enable Live Data</span>
+                </label>
+            </div>
+            <div class="control-group">
+                <button id="sync-nasa-data" class="btn btn-primary">
+                    <span class="icon">🛰️</span>
+                    <span class="text">Sync with NASA</span>
+                </button>
+            </div>
+            <div class="control-group">
+                <label>Data Source:</label>
+                <select id="nasa-data-source">
+                    <option value="horizons" selected>JPL HORIZONS</option>
+                    <option value="cache">Cached Data</option>
+                    <option value="hybrid">Hybrid Mode</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <span>Last Update: <span id="nasa-last-update">Never</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help/Instructions -->
+    <div id="help-panel" class="hidden">
+        <div class="help-content">
+            <h2>Solar System Simulation - Controls</h2>
+            <div class="help-section">
+                <h3>🎮 Camera Controls</h3>
+                <ul>
+                    <li><strong>Mouse Drag</strong> - Rotate camera around target</li>
+                    <li><strong>Mouse Wheel</strong> - Zoom in/out</li>
+                    <li><strong>Right Click + Drag</strong> - Pan camera</li>
+                    <li><strong>Double Click Planet</strong> - Focus on planet</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h3>⏰ Time Controls</h3>
+                <ul>
+                    <li><strong>Play/Pause</strong> - Start/stop simulation</li>
+                    <li><strong>Speed Slider</strong> - Adjust animation speed</li>
+                    <li><strong>Time Scale</strong> - Change time compression</li>
+                    <li><strong>Reset</strong> - Return to starting positions</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h3>🌍 Features</h3>
+                <ul>
+                    <li><strong>High-Resolution Textures</strong> - Realistic planet surfaces</li>
+                    <li><strong>Orbital Trails</strong> - 1/4 green trailing orbits</li>
+                    <li><strong>Saturn's Rings</strong> - Detailed ring system</li>
+                    <li><strong>Major Moons</strong> - Earth's Moon, Jupiter's moons</li>
+                    <li><strong>Real Astronomy Data</strong> - Accurate orbital mechanics</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h3>⚡ Performance Tips</h3>
+                <ul>
+                    <li>Lower quality settings for better performance</li>
+                    <li>Disable orbit trails if experiencing lag</li>
+                    <li>Use "Realistic Distances" for accurate scale</li>
+                    <li>Close other browser tabs for best performance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle Buttons -->
+    <div id="toggle-buttons">
+        <button id="help-btn" class="toggle-btn" title="Show Help">
+            <span>❓</span>
+        </button>
+        <button id="fullscreen-btn" class="toggle-btn" title="Toggle Fullscreen">
+            <span>⛶</span>
+        </button>
+        <button id="screenshot-btn" class="toggle-btn" title="Take Screenshot">
+            <span>📷</span>
+        </button>
+    </div>
+
+    <!-- Performance Monitor -->
+    <div id="performance-monitor">
+        <div class="fps-counter">
+            <span>FPS: </span>
+            <span id="fps-value">60</span>
+        </div>
+        <div class="object-count">
+            <span>Objects: </span>
+            <span id="object-count">0</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/planetData.js"></script>
+    <script src="js/textureLoader.js"></script>
+    <script src="js/texturePreloader.js"></script>
+    <script src="js/textureQualityManager.js"></script>
+    <script src="js/nasaOrbitalElements.js"></script>
+    
+    <!-- Advanced Physics Engine -->
+    <script src="js/physicsConstants.js"></script>
+    <script src="js/advancedPhysics.js"></script>
+    <script src="js/physicsIntegration.js"></script>
+    <script src="js/advancedUI.js"></script>
+    
+    <!-- Core Simulation -->
+    <script src="js/planetFactory.js"></script>
+    <script src="js/orbitTrails.js"></script>
+    <script src="js/cameraControls.js"></script>
+    <script src="js/userInterface.js"></script>
+    <script src="js/solarSystem.js"></script>
+    
+    <!-- State-of-the-art enhancements -->
+    <script src="js/advancedPhysics.js"></script>
+    <script src="js/atmosphereShaders.js"></script>
+    <script src="js/nasaHorizonsAPI.js"></script>
+    
+    <script src="enhanced-planet-textures.js"></script>
+    <script src="nasa-planet-textures.js"></script>
+    <script src="quick-fixes.js"></script>
+    <script src="force-real-textures.js"></script>
+    
+    <!-- Main application initialization -->
+    <script>
+        // Wait for all scripts to load and DOM to be ready
+        window.addEventListener('load', async function() {
+            console.log('Starting solar system simulation with enhanced texture system...');
+            console.log('Available classes:', {
+                THREE: typeof THREE,
+                SolarSystem: typeof SolarSystem,
+                PlanetFactory: typeof PlanetFactory,
+                OrbitTrails: typeof OrbitTrails,
+                CameraControls: typeof CameraControls,
+                UserInterface: typeof UserInterface,
+                TexturePreloader: typeof TexturePreloader,
+                TextureQualityManager: typeof TextureQualityManager
+            });
+            
+            try {
+                // Verify Three.js is available
+                if (typeof THREE === 'undefined') {
+                    throw new Error('Three.js library not loaded');
+                }
+                
+                // Verify our classes are available
+                if (typeof SolarSystem === 'undefined') {
+                    throw new Error('SolarSystem class not loaded');
+                }
+                
+                // Update loading text
+                const loadingText = document.querySelector('.loading-text');
+                const loadingProgress = document.getElementById('loading-progress');
+                
+                if (loadingText) loadingText.textContent = 'Loading NASA planetary textures...';
+                
+                // Start texture preloading
+                if (typeof texturePreloader !== 'undefined') {
+                    texturePreloader.onProgress((progress, status) => {
+                        if (loadingProgress) {
+                            loadingProgress.style.width = `${progress}%`;
+                        }
+                        if (loadingText) {
+                            loadingText.textContent = `Loading textures: ${progress.toFixed(1)}%`;
+                        }
+                    });
+                    
+                    console.log('Starting texture preloading...');
+                    await texturePreloader.startPreloading();
+                }
+                
+                // Update loading text for simulation initialization
+                if (loadingText) loadingText.textContent = 'Initializing solar system...';
+                
+                // Create and initialize the solar system
+                console.log('Creating SolarSystem instance...');
+                const solarSystem = new SolarSystem();
+                
+                console.log('Initializing solar system...');
+                const success = await solarSystem.initialize();
+                
+                if (success) {
+                    console.log('Solar system simulation loaded successfully!');
+                    window.solarSystem = solarSystem; // Make available globally for debugging
+                    
+                    // Hide loading screen
+                    const loadingScreen = document.getElementById('loading-screen');
+                    if (loadingScreen) {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 500);
+                    }
+                    
+                    // Show texture quality manager
+                    if (typeof textureQualityManager !== 'undefined') {
+                        textureQualityManager.onQualityChange((newQuality, oldQuality) => {
+                            console.log(`Texture quality changed: ${oldQuality} → ${newQuality}`);
+                            // Quality changes will be handled by the texture system
+                        });
+                    }
+                } else {
+                    console.error('Failed to initialize solar system simulation');
+                }
+            } catch (error) {
+                console.error('Error starting solar system simulation:', error);
+                
+                // Show error in loading screen
+                const loadingText = document.querySelector('.loading-text');
+                if (loadingText) {
+                    loadingText.textContent = 'Error: ' + error.message;
+                    loadingText.style.color = '#ff4444';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Game Debug</title>
+</head>
+<body>
+    <h1>Chess Game Debug</h1>
+    <div id="debug-info"></div>
+    
+    <!-- Include chess.js library -->
+    <script src="js/chess.js"></script>
+    <script src="js/ChessGame.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const debugInfo = document.getElementById('debug-info');
+            
+            try {
+                debugInfo.innerHTML += '<p>Checking if Chess is available...</p>';
+                if (typeof Chess !== 'undefined') {
+                    debugInfo.innerHTML += '<p>✓ Chess is available</p>';
+                    const game = new Chess();
+                    debugInfo.innerHTML += '<p>✓ Chess game created successfully</p>';
+                } else {
+                    debugInfo.innerHTML += '<p>✗ Chess is not available</p>';
+                }
+            } catch (error) {
+                debugInfo.innerHTML += `<p>✗ Error creating Chess: ${error.message}</p>`;
+            }
+            
+            try {
+                debugInfo.innerHTML += '<p>Checking if ChessGame is available...</p>';
+                if (typeof ChessGame !== 'undefined') {
+                    debugInfo.innerHTML += '<p>✓ ChessGame is available</p>';
+                    const chessGame = new ChessGame();
+                    debugInfo.innerHTML += '<p>✓ ChessGame created successfully</p>';
+                } else {
+                    debugInfo.innerHTML += '<p>✗ ChessGame is not available</p>';
+                }
+            } catch (error) {
+                debugInfo.innerHTML += `<p>✗ Error creating ChessGame: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

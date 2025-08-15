@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Chess Test</title>
+</head>
+<body>
+    <h1>Minimal Chess Test</h1>
+    <div id="output"></div>
+    <button onclick="testChessJS()">Test Chess.js</button>
+    <button onclick="testChessGame()">Test ChessGame</button>
+    <button onclick="testComputerMove()">Test Computer Move</button>
+    
+    <script src="js/chess.js"></script>
+    <script src="js/ChessGame.js"></script>
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            output.innerHTML += `<p>${message}</p>`;
+            console.log(message);
+        }
+        
+        function testChessJS() {
+            output.innerHTML = '<h2>Chess.js Test</h2>';
+            try {
+                const chess = new Chess();
+                log('✓ Chess.js instantiated');
+                log(`Turn: ${chess.turn()}`);
+                log(`FEN: ${chess.fen()}`);
+                
+                // Test a simple move
+                const moves = chess.moves();
+                log(`Available moves: ${moves.length}`);
+                if (moves.length > 0) {
+                    const result = chess.move(moves[0]);
+                    log(`Move result: ${JSON.stringify(result)}`);
+                    log(`New turn: ${chess.turn()}`);
+                }
+            } catch (e) {
+                log(`Error: ${e.message}`);
+            }
+        }
+        
+        function testChessGame() {
+            output.innerHTML = '<h2>ChessGame Test</h2>';
+            try {
+                const game = new ChessGame();
+                log('✓ ChessGame instantiated');
+                log(`Game mode: ${game.gameMode}`);
+                log(`Computer level: ${game.computerLevel}`);
+                log(`Current player: ${game.getCurrentPlayer()}`);
+                
+                // Test board state
+                const boardState = game.getBoardState();
+                log(`Board state retrieved`);
+                log(`Current player: ${boardState.currentPlayer}`);
+                log(`Game over: ${boardState.gameOver}`);
+                
+                // Test a simple move
+                const result = game.movePiece(6, 4, 4, 4); // e2 to e4
+                log(`Move result: ${result}`);
+                if (result) {
+                    log(`New current player: ${game.getCurrentPlayer()}`);
+                }
+            } catch (e) {
+                log(`Error: ${e.message}`);
+            }
+        }
+        
+        function testComputerMove() {
+            output.innerHTML = '<h2>Computer Move Test</h2>';
+            try {
+                const game = new ChessGame();
+                game.setGameMode('computer');
+                log('✓ ChessGame instantiated in computer mode');
+                log(`Game mode: ${game.gameMode}`);
+                log(`Current player: ${game.getCurrentPlayer()}`);
+                log(`Is computer turn: ${game.isComputerTurn()}`);
+                
+                // Make a move to switch to black's turn
+                const moveResult = game.movePiece(6, 4, 4, 4); // e2 to e4
+                log(`Human move result: ${moveResult}`);
+                log(`New current player: ${game.getCurrentPlayer()}`);
+                log(`Is computer turn now: ${game.isComputerTurn()}`);
+                
+                if (game.isComputerTurn()) {
+                    log('Attempting computer move...');
+                    const compMove = game.makeComputerMove();
+                    log(`Computer move result: ${compMove}`);
+                    if (compMove) {
+                        log(`New current player: ${game.getCurrentPlayer()}`);
+                    }
+                } else {
+                    log('Not computer turn yet');
+                }
+            } catch (e) {
+                log(`Error: ${e.message}`);
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

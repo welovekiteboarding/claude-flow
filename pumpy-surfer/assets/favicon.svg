@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon Generator</title>
+</head>
+<body>
+    <h1>Favicon for Pumpy Surfer</h1>
+    <p>This is a placeholder for the favicon SVG content.</p>
+    <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <rect width="16" height="16" fill="#87CEEB"/>
+        <path d="M2 12 Q8 8 14 12" stroke="#1ABC9C" stroke-width="2" fill="none"/>
+        <rect x="4" y="6" width="3" height="4" fill="#FF6B35"/>
+    </svg>
+</body>
+</html>

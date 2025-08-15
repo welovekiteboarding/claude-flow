@@ -1,0 +1,587 @@
+/* Solar System Simulation - Professional CSS */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* Loading Screen */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #1a1a2e 0%, #16213e 50%, #0f0f1e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.5s ease;
+}
+
+.loading-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.solar-system-logo {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 2rem;
+}
+
+.sun {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle, #ffeb3b 0%, #ff9800 70%, #f44336 100%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 30px #ffeb3b;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.planet {
+    position: absolute;
+    border-radius: 50%;
+    animation: orbit 4s linear infinite;
+}
+
+.planet1 {
+    top: 30px;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #2196f3;
+    transform-origin: 0 70px;
+    animation-duration: 3s;
+}
+
+.planet2 {
+    top: 20px;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background: #4caf50;
+    transform-origin: 0 80px;
+    animation-duration: 5s;
+}
+
+.planet3 {
+    top: 10px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: #ff5722;
+    transform-origin: 0 90px;
+    animation-duration: 7s;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.loading-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(45deg, #fff, #64b5f6, #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.loading-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #2196f3, #64b5f6, #2196f3);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.loading-text {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+/* Main Canvas */
+#solar-system-canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    cursor: grab;
+}
+
+#solar-system-canvas:active {
+    cursor: grabbing;
+}
+
+/* UI Container */
+#ui-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.1);
+}
+
+#ui-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#ui-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+#ui-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.control-panel {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    min-width: 280px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.control-panel h3 {
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    color: #64b5f6;
+    border-bottom: 1px solid rgba(100, 181, 246, 0.3);
+    padding-bottom: 8px;
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+.btn-primary {
+    background: #2196f3;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1976d2;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.btn .icon {
+    font-size: 1.1rem;
+}
+
+/* Form Controls */
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2196f3;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2196f3;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+}
+
+select {
+    width: 100%;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.9rem;
+}
+
+select option {
+    background: #333;
+    color: white;
+}
+
+input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.2);
+}
+
+/* Planet Buttons */
+.planet-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.planet-btn {
+    padding: 8px 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.planet-btn:hover,
+.planet-btn.active {
+    background: #2196f3;
+    border-color: #2196f3;
+    transform: translateY(-1px);
+}
+
+/* Planet Information */
+.info-content {
+    font-size: 0.9rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-label {
+    color: #aaa;
+}
+
+.info-value {
+    color: #64b5f6;
+    font-weight: 500;
+}
+
+/* Toggle Buttons */
+#toggle-buttons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.toggle-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toggle-btn:hover {
+    background: rgba(33, 150, 243, 0.8);
+    transform: scale(1.1);
+}
+
+/* Performance Monitor */
+#performance-monitor {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 0.8rem;
+    color: #ccc;
+    z-index: 1000;
+}
+
+.fps-counter,
+.object-count {
+    margin-bottom: 2px;
+}
+
+#fps-value {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+/* Help Panel */
+#help-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 30px;
+    z-index: 10000;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+#help-panel.hidden {
+    display: none;
+}
+
+.help-content h2 {
+    color: #64b5f6;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.help-section {
+    margin-bottom: 25px;
+}
+
+.help-section h3 {
+    color: #fff;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.help-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.help-section li {
+    margin-bottom: 8px;
+    padding-left: 15px;
+    position: relative;
+    color: #ccc;
+    line-height: 1.4;
+}
+
+.help-section li::before {
+    content: '▶';
+    position: absolute;
+    left: 0;
+    color: #64b5f6;
+    font-size: 0.8rem;
+}
+
+.help-section strong {
+    color: #fff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #ui-container {
+        left: 10px;
+        top: 10px;
+        max-height: calc(100vh - 20px);
+    }
+    
+    .control-panel {
+        min-width: 250px;
+        padding: 12px;
+    }
+    
+    .planet-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    #toggle-buttons {
+        right: 10px;
+        top: 10px;
+    }
+    
+    .toggle-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+    
+    #performance-monitor {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 12px;
+    }
+    
+    #help-panel {
+        width: 95%;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .control-panel {
+        min-width: 220px;
+        padding: 10px;
+    }
+    
+    .planet-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .planet-btn {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .loading-content h1 {
+        font-size: 2rem;
+    }
+    
+    .solar-system-logo {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.control-panel {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Scrollbar Styling */
+.control-panel::-webkit-scrollbar {
+    width: 4px;
+}
+
+.control-panel::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.control-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+/* Focus States */
+.btn:focus,
+input:focus,
+select:focus {
+    outline: 2px solid #64b5f6;
+    outline-offset: 2px;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-small {
+    font-size: 0.8rem;
+}
+
+.text-large {
+    font-size: 1.2rem;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}

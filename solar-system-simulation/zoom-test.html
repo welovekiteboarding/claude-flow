@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Zoom & Texture Fix Test</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>🔧 Fix Verification Test</h3>
+        <div id="zoom-status">🖱️ Zoom: Ready</div>
+        <div id="texture-status">🎨 Textures: Testing...</div>
+        <div id="camera-status">📷 Camera: Initializing...</div>
+        <br>
+        <div><strong>Instructions:</strong></div>
+        <div>• Move mouse wheel to test zoom</div>
+        <div>• Watch console for debug logs</div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/planetData.js"></script>
+    <script src="js/textureLoader.js"></script>
+    <script src="js/cameraControls.js"></script>
+    
+    <script>
+        console.log('🔧 ZOOM FIX TEST: Starting verification...');
+        
+        // Create test scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Test sphere
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshBasicMaterial({ color: 0x6b93d6 });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+        
+        // Position camera
+        camera.position.set(0, 0, 5);
+        
+        // Initialize camera controls with fixed implementation
+        let cameraControls;
+        try {
+            cameraControls = new CameraControls(camera, renderer.domElement, scene);
+            console.log('🔧 ZOOM FIX TEST: ✅ CameraControls created successfully');
+            document.getElementById('camera-status').innerHTML = '📷 Camera: <span class="success">✅ Controls Active</span>';
+            
+            // Test initial camera position
+            console.log('🔧 ZOOM FIX TEST: Initial camera position:', camera.position.x, camera.position.y, camera.position.z);
+            console.log('🔧 ZOOM FIX TEST: Initial spherical radius:', cameraControls.spherical.radius);
+            
+        } catch (error) {
+            console.error('🔧 ZOOM FIX TEST: ❌ Failed to create camera controls:', error);
+            document.getElementById('camera-status').innerHTML = '📷 Camera: <span class="error">❌ Failed - ' + error.message + '</span>';
+        }
+        
+        // Test texture loading with fixed TextureLoader
+        async function testTextureLoading() {
+            try {
+                console.log('🔧 TEXTURE FIX TEST: Testing texture loading...');
+                
+                const loader = new TextureLoader();
+                console.log('🔧 TEXTURE FIX TEST: TextureLoader created:', loader);
+                
+                // Test with Earth data
+                const earthData = PLANETARY_DATA.earth;
+                console.log('🔧 TEXTURE FIX TEST: Earth data:', earthData);
+                console.log('🔧 TEXTURE FIX TEST: Earth texture URL:', earthData.textureUrl);
+                
+                document.getElementById('texture-status').innerHTML = '🎨 Textures: <span class="warning">Loading Earth...</span>';
+                
+                const texture = await loader.loadTexture(earthData.textureUrl, {
+                    color: earthData.color
+                });
+                
+                console.log('🔧 TEXTURE FIX TEST: Texture result:', texture);
+                
+                if (texture && texture.image) {
+                    // Apply texture to sphere
+                    sphere.material.map = texture;
+                    sphere.material.needsUpdate = true;
+                    
+                    console.log('🔧 TEXTURE FIX TEST: ✅ Texture applied successfully');
+                    console.log('🔧 TEXTURE FIX TEST: Texture dimensions:', texture.image.width, 'x', texture.image.height);
+                    document.getElementById('texture-status').innerHTML = '🎨 Textures: <span class="success">✅ Loaded & Applied</span>';
+                } else {
+                    console.warn('🔧 TEXTURE FIX TEST: ⚠️ Texture loaded but fallback may be used');
+                    document.getElementById('texture-status').innerHTML = '🎨 Textures: <span class="warning">⚠️ Fallback Used</span>';
+                }
+                
+            } catch (error) {
+                console.error('🔧 TEXTURE FIX TEST: ❌ Texture loading failed:', error);
+                document.getElementById('texture-status').innerHTML = '🎨 Textures: <span class="error">❌ Failed - ' + error.message + '</span>';
+            }
+        }
+        
+        // Monitor zoom events
+        let zoomEventCount = 0;
+        let lastZoomTime = 0;
+        
+        // Override the wheel event to track zoom tests
+        const originalWheelHandler = renderer.domElement.onwheel;
+        renderer.domElement.addEventListener('wheel', (event) => {
+            zoomEventCount++;
+            const now = Date.now();
+            
+            console.log(`🔧 ZOOM FIX TEST: Wheel event #${zoomEventCount} detected`);
+            console.log('🔧 ZOOM FIX TEST: Event details:', {
+                deltaY: event.deltaY,
+                deltaX: event.deltaX,
+                deltaZ: event.deltaZ,
+                deltaMode: event.deltaMode
+            });
+            
+            if (cameraControls) {
+                const oldPosition = camera.position.clone();
+                const oldRadius = cameraControls.spherical.radius;
+                
+                // Allow the control to handle the event
+                setTimeout(() => {
+                    const newPosition = camera.position.clone();
+                    const newRadius = cameraControls.spherical.radius;
+                    const distanceMoved = oldPosition.distanceTo(newPosition);
+                    const radiusChange = Math.abs(oldRadius - newRadius);
+                    
+                    console.log('🔧 ZOOM FIX TEST: Camera movement check:');
+                    console.log('  - Distance moved:', distanceMoved);
+                    console.log('  - Radius change:', radiusChange);
+                    console.log('  - Old position:', oldPosition.x, oldPosition.y, oldPosition.z);
+                    console.log('  - New position:', newPosition.x, newPosition.y, newPosition.z);
+                    
+                    if (distanceMoved > 0.01 || radiusChange > 0.01) {
+                        document.getElementById('zoom-status').innerHTML = `🖱️ Zoom: <span class="success">✅ Working! (Event #${zoomEventCount})</span>`;
+                    } else {
+                        document.getElementById('zoom-status').innerHTML = `🖱️ Zoom: <span class="error">❌ Not Working (Event #${zoomEventCount})</span>`;
+                    }
+                }, 50); // Small delay to allow control update
+            }
+            
+            lastZoomTime = now;
+        });
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update camera controls
+            if (cameraControls) {
+                cameraControls.update();
+            }
+            
+            // Rotate sphere
+            sphere.rotation.y += 0.01;
+            
+            // Render
+            renderer.render(scene, camera);
+        }
+        
+        // Start everything
+        console.log('🔧 ZOOM FIX TEST: Starting tests...');
+        testTextureLoading();
+        animate();
+        
+        // Report test readiness
+        setTimeout(() => {
+            console.log('🔧 ZOOM FIX TEST: 🎯 Test ready! Try using mouse wheel to zoom.');
+            console.log('🔧 ZOOM FIX TEST: Watch console logs for detailed debug information.');
+        }, 1000);
+        
+    </script>
+</body>
+</html>

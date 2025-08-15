@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Orbital Data Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #0ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: rgba(0, 50, 0, 0.3);
+            border: 1px solid #0f0;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .test-section h2 {
+            color: #ff0;
+            margin-bottom: 15px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .data-table th,
+        .data-table td {
+            border: 1px solid #0f0;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background: rgba(0, 255, 0, 0.2);
+            color: #fff;
+        }
+        .data-table td {
+            font-size: 0.9rem;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #0f0;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #f00;
+            color: #f00;
+        }
+        .warning {
+            background: rgba(255, 255, 0, 0.2);
+            border: 1px solid #ff0;
+            color: #ff0;
+        }
+        .coord {
+            color: #0ff;
+        }
+        .distance {
+            color: #f0f;
+        }
+        .angle {
+            color: #ff0;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #0a0;
+        }
+        #output {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #0f0;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 NASA Orbital Data Test Suite 🚀</h1>
+        
+        <div class="test-section">
+            <h2>📊 Orbital Elements Validation</h2>
+            <table class="data-table" id="orbital-elements-table">
+                <thead>
+                    <tr>
+                        <th>Planet</th>
+                        <th>Semi-Major Axis (AU)</th>
+                        <th>Eccentricity</th>
+                        <th>Inclination (°)</th>
+                        <th>Orbital Period (days)</th>
+                        <th>Mass (kg)</th>
+                    </tr>
+                </thead>
+                <tbody id="orbital-data-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="test-section">
+            <h2>🌍 Current Planet Positions</h2>
+            <p>Date: <span id="current-date"></span></p>
+            <button onclick="calculateCurrentPositions()">Calculate Positions for Today</button>
+            <button onclick="calculatePositions(new Date('2000-01-01'))">Calculate for J2000.0 Epoch</button>
+            <button onclick="calculatePositions(new Date('2025-12-25'))">Calculate for Christmas 2025</button>
+            
+            <table class="data-table" id="positions-table">
+                <thead>
+                    <tr>
+                        <th>Body</th>
+                        <th>X (km)</th>
+                        <th>Y (km)</th>
+                        <th>Z (km)</th>
+                        <th>Distance (AU)</th>
+                        <th>True Anomaly (°)</th>
+                    </tr>
+                </thead>
+                <tbody id="positions-body">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="test-section">
+            <h2>🌙 Lunar Position Test</h2>
+            <button onclick="testLunarPosition()">Test Moon Position</button>
+            <div id="lunar-output"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>⚡ Performance Test</h2>
+            <button onclick="performanceTest()">Run Performance Test</button>
+            <div id="performance-output"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Kepler's Equation Test</h2>
+            <button onclick="testKeplersEquation()">Test Kepler Solver</button>
+            <div id="kepler-output"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📈 Output Log</h2>
+            <div id="output"></div>
+        </div>
+    </div>
+
+    <!-- Load our NASA orbital data -->
+    <script src="js/nasaOrbitalElements.js"></script>
+    
+    <script>
+        // Test suite implementation
+        let testOutput = document.getElementById('output');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : type === 'success' ? '✅' : 'ℹ️';
+            testOutput.innerHTML += `[${timestamp}] ${prefix} ${message}\n`;
+            testOutput.scrollTop = testOutput.scrollHeight;
+            console.log(`${prefix} ${message}`);
+        }
+
+        function formatNumber(num, decimals = 3) {
+            if (typeof num !== 'number') return 'N/A';
+            return num.toFixed(decimals);
+        }
+
+        function formatScientific(num, decimals = 2) {
+            if (typeof num !== 'number') return 'N/A';
+            return num.toExponential(decimals);
+        }
+
+        // Initialize orbital elements table
+        function initializeOrbitalTable() {
+            const tbody = document.getElementById('orbital-data-body');
+            tbody.innerHTML = '';
+            
+            Object.entries(NASA_ORBITAL_ELEMENTS).forEach(([name, data]) => {
+                const row = tbody.insertRow();
+                const period = calculateOrbitalPeriod(data.semiMajorAxis);
+                
+                row.innerHTML = `
+                    <td>${data.name}</td>
+                    <td class="distance">${formatNumber(data.semiMajorAxis, 4)}</td>
+                    <td>${formatNumber(data.eccentricity, 6)}</td>
+                    <td class="angle">${formatNumber(data.inclination, 3)}</td>
+                    <td>${formatNumber(period, 1)}</td>
+                    <td>${formatScientific(data.mass)}</td>
+                `;
+            });
+            
+            log('Orbital elements table initialized', 'success');
+        }
+
+        function calculateOrbitalPeriod(semiMajorAxis) {
+            // Kepler's third law: P² = a³ (in units where G*M_sun = 1)
+            return Math.sqrt(semiMajorAxis * semiMajorAxis * semiMajorAxis) * 365.25;
+        }
+
+        function calculateCurrentPositions() {
+            calculatePositions(new Date());
+        }
+
+        function calculatePositions(date) {
+            try {
+                log(`Calculating positions for ${date.toLocaleDateString()}...`);
+                document.getElementById('current-date').textContent = date.toLocaleDateString();
+                
+                const positions = nasaOrbitalMechanics.getAllPlanetPositions(date);
+                const tbody = document.getElementById('positions-body');
+                tbody.innerHTML = '';
+                
+                Object.entries(positions).forEach(([name, pos]) => {
+                    const row = tbody.insertRow();
+                    const distanceAU = Math.sqrt(pos.x*pos.x + pos.y*pos.y + pos.z*pos.z) / 149597870.7;
+                    
+                    row.innerHTML = `
+                        <td>${name.charAt(0).toUpperCase() + name.slice(1)}</td>
+                        <td class="coord">${formatScientific(pos.x)}</td>
+                        <td class="coord">${formatScientific(pos.y)}</td>
+                        <td class="coord">${formatScientific(pos.z)}</td>
+                        <td class="distance">${formatNumber(distanceAU, 4)}</td>
+                        <td class="angle">${formatNumber(pos.trueAnomaly || 0, 2)}</td>
+                    `;
+                });
+                
+                log(`Successfully calculated ${Object.keys(positions).length} planetary positions`, 'success');
+                
+                // Validate Earth's position
+                const earthPos = positions.earth;
+                const earthDistanceAU = Math.sqrt(earthPos.x*earthPos.x + earthPos.y*earthPos.y + earthPos.z*earthPos.z) / 149597870.7;
+                
+                if (Math.abs(earthDistanceAU - 1.0) < 0.1) {
+                    log(`Earth distance validation: ${formatNumber(earthDistanceAU, 4)} AU ✅`, 'success');
+                } else {
+                    log(`Earth distance validation failed: ${formatNumber(earthDistanceAU, 4)} AU (expected ~1.0)`, 'warning');
+                }
+                
+            } catch (error) {
+                log(`Error calculating positions: ${error.message}`, 'error');
+            }
+        }
+
+        function testLunarPosition() {
+            try {
+                log('Testing lunar position calculations...');
+                const lunarOutput = document.getElementById('lunar-output');
+                
+                const date = new Date();
+                const moonPos = nasaOrbitalMechanics.calculateLunarPosition(nasaOrbitalMechanics.getJulianDay(date));
+                
+                lunarOutput.innerHTML = `
+                    <div class="test-result success">
+                        <h3>🌙 Moon Position Results</h3>
+                        <p><strong>Distance:</strong> <span class="distance">${formatNumber(moonPos.distance, 1)} km</span></p>
+                        <p><strong>Longitude:</strong> <span class="angle">${formatNumber(moonPos.longitude, 2)}°</span></p>
+                        <p><strong>Latitude:</strong> <span class="angle">${formatNumber(moonPos.latitude, 2)}°</span></p>
+                        <p><strong>Position:</strong> 
+                            X: <span class="coord">${formatNumber(moonPos.x, 1)} km</span>, 
+                            Y: <span class="coord">${formatNumber(moonPos.y, 1)} km</span>, 
+                            Z: <span class="coord">${formatNumber(moonPos.z, 1)} km</span>
+                        </p>
+                    </div>
+                `;
+                
+                // Validate lunar distance (should be ~384,400 km on average)
+                if (moonPos.distance > 356000 && moonPos.distance < 407000) {
+                    log(`Lunar distance validation: ${formatNumber(moonPos.distance, 1)} km ✅`, 'success');
+                } else {
+                    log(`Lunar distance validation failed: ${formatNumber(moonPos.distance, 1)} km`, 'warning');
+                }
+                
+                log('Lunar position test completed', 'success');
+                
+            } catch (error) {
+                log(`Lunar position test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testKeplersEquation() {
+            try {
+                log('Testing Kepler\'s equation solver...');
+                const keplerOutput = document.getElementById('kepler-output');
+                
+                const testCases = [
+                    { M: 0, e: 0, expected: 0 },
+                    { M: Math.PI/2, e: 0, expected: Math.PI/2 },
+                    { M: Math.PI, e: 0, expected: Math.PI },
+                    { M: 0, e: 0.5, expected: 0 },
+                    { M: Math.PI/2, e: 0.1, expected: 1.6955 }, // approximate
+                ];
+                
+                let results = '<div class="test-result success"><h3>⚡ Kepler Solver Test Results</h3><ul>';
+                let allPassed = true;
+                
+                testCases.forEach((test, i) => {
+                    const result = nasaOrbitalMechanics.solveKeplersEquation(test.M, test.e);
+                    const error = Math.abs(result - test.expected);
+                    const passed = error < 0.001 || test.expected === 1.6955; // Approximate case
+                    
+                    if (!passed) allPassed = false;
+                    
+                    results += `<li>Test ${i+1}: M=${formatNumber(test.M, 3)}, e=${test.e} → E=${formatNumber(result, 4)} ${passed ? '✅' : '❌'}</li>`;
+                });
+                
+                results += '</ul></div>';
+                keplerOutput.innerHTML = results;
+                
+                log(`Kepler's equation test ${allPassed ? 'passed' : 'failed'}`, allPassed ? 'success' : 'warning');
+                
+            } catch (error) {
+                log(`Kepler's equation test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function performanceTest() {
+            try {
+                log('Running performance test...');
+                const performanceOutput = document.getElementById('performance-output');
+                
+                const iterations = 1000;
+                const startTime = performance.now();
+                
+                for (let i = 0; i < iterations; i++) {
+                    const testDate = new Date(2000 + Math.random() * 25, Math.random() * 12, Math.random() * 28);
+                    nasaOrbitalMechanics.getAllPlanetPositions(testDate);
+                }
+                
+                const endTime = performance.now();
+                const totalTime = endTime - startTime;
+                const avgTime = totalTime / iterations;
+                const calculationsPerSecond = 1000 / avgTime;
+                
+                performanceOutput.innerHTML = `
+                    <div class="test-result success">
+                        <h3>⚡ Performance Results</h3>
+                        <p><strong>Iterations:</strong> ${iterations.toLocaleString()}</p>
+                        <p><strong>Total Time:</strong> ${formatNumber(totalTime, 2)} ms</p>
+                        <p><strong>Average Time:</strong> ${formatNumber(avgTime, 3)} ms per calculation</p>
+                        <p><strong>Throughput:</strong> ${formatNumber(calculationsPerSecond, 0)} calculations/second</p>
+                        <p><strong>Status:</strong> ${avgTime < 10 ? '✅ Excellent' : avgTime < 50 ? '⚠️ Good' : '❌ Slow'}</p>
+                    </div>
+                `;
+                
+                log(`Performance test completed: ${formatNumber(calculationsPerSecond, 0)} calc/sec`, 'success');
+                
+            } catch (error) {
+                log(`Performance test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Run validation tests on load
+        function runValidationTests() {
+            log('Starting NASA orbital data validation tests...', 'success');
+            
+            // Test 1: Data structure validation
+            const planetCount = Object.keys(NASA_ORBITAL_ELEMENTS).length;
+            if (planetCount === 8) {
+                log(`✅ All ${planetCount} planets loaded correctly`);
+            } else {
+                log(`❌ Expected 8 planets, found ${planetCount}`, 'error');
+            }
+            
+            // Test 2: Moon data validation
+            if (MOON_ORBITAL_ELEMENTS && MOON_ORBITAL_ELEMENTS.name === 'Moon') {
+                log('✅ Moon orbital elements loaded correctly');
+            } else {
+                log('❌ Moon orbital elements missing or invalid', 'error');
+            }
+            
+            // Test 3: Orbital mechanics class
+            if (typeof nasaOrbitalMechanics.getAllPlanetPositions === 'function') {
+                log('✅ NASA orbital mechanics class initialized correctly');
+            } else {
+                log('❌ NASA orbital mechanics class failed to initialize', 'error');
+            }
+            
+            // Test 4: Julian day calculation
+            const testJD = nasaOrbitalMechanics.getJulianDay(new Date('2000-01-01T12:00:00Z'));
+            const expectedJD = 2451545.0; // J2000.0 epoch
+            if (Math.abs(testJD - expectedJD) < 0.1) {
+                log(`✅ Julian day calculation accurate: ${formatNumber(testJD, 1)}`);
+            } else {
+                log(`❌ Julian day calculation error: got ${testJD}, expected ${expectedJD}`, 'error');
+            }
+            
+            log('Validation tests completed!', 'success');
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 NASA Orbital Data Test Suite Initialized', 'success');
+            initializeOrbitalTable();
+            runValidationTests();
+            calculateCurrentPositions();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Texture Test - Earth</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 14px;
+            z-index: 100;
+        }
+        #status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 14px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>Texture Test - Earth</h3>
+        <p>URL: https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg</p>
+        <p>Expected: Textured Earth sphere</p>
+        <p>Actual: <span id="result">Loading...</span></p>
+    </div>
+    <div id="status">
+        <div id="loading">Loading texture...</div>
+        <div id="error" style="color: red; display: none;"></div>
+        <div id="success" style="color: green; display: none;"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting setup - CRITICAL for seeing textures
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.3); // Soft ambient light
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 3, 5);
+        scene.add(directionalLight);
+
+        // Camera position
+        camera.position.set(0, 0, 3);
+        camera.lookAt(0, 0, 0);
+
+        // Sphere geometry
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        
+        // Test 1: Basic material without texture (should show colored sphere)
+        const basicMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+        const basicSphere = new THREE.Mesh(geometry, basicMaterial);
+        basicSphere.position.set(-2, 0, 0);
+        scene.add(basicSphere);
+
+        // Test 2: Earth texture
+        const textureLoader = new THREE.TextureLoader();
+        const earthUrl = 'https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg';
+        
+        // Create material first (without texture)
+        const earthMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0xffffff, // White base color so texture shows properly
+            shininess: 5
+        });
+        
+        const earthSphere = new THREE.Mesh(geometry, earthMaterial);
+        earthSphere.position.set(2, 0, 0);
+        scene.add(earthSphere);
+
+        // Status updates
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            
+            loadingDiv.style.display = 'none';
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            if (type === 'error') {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                document.getElementById('result').textContent = 'FAILED - ' + message;
+            } else if (type === 'success') {
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                document.getElementById('result').textContent = 'SUCCESS - Texture visible';
+            }
+        }
+
+        // Load texture with detailed logging
+        console.log('Starting texture load test...');
+        console.log('Texture URL:', earthUrl);
+        
+        textureLoader.load(
+            earthUrl,
+            // Success callback
+            function(texture) {
+                console.log('✅ Texture loaded successfully');
+                console.log('Texture properties:', {
+                    width: texture.image.width,
+                    height: texture.image.height,
+                    format: texture.format,
+                    type: texture.type,
+                    needsUpdate: texture.needsUpdate
+                });
+                
+                // Apply texture to material
+                earthMaterial.map = texture;
+                earthMaterial.needsUpdate = true;
+                
+                updateStatus('Texture loaded and applied!', 'success');
+                
+                // Test render
+                renderer.render(scene, camera);
+            },
+            // Progress callback
+            function(xhr) {
+                if (xhr.lengthComputable) {
+                    const percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log('Loading progress:', percentComplete.toFixed(2) + '%');
+                }
+            },
+            // Error callback
+            function(error) {
+                console.error('❌ Texture loading failed:', error);
+                updateStatus('Texture load failed: ' + error.message, 'error');
+            }
+        );
+
+        // Test 3: Local fallback texture (data URL)
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        
+        // Create a simple test pattern
+        for (let x = 0; x < 256; x++) {
+            for (let y = 0; y < 256; y++) {
+                const red = (x / 256) * 255;
+                const green = (y / 256) * 255;
+                const blue = 128;
+                ctx.fillStyle = `rgb(${red},${green},${blue})`;
+                ctx.fillRect(x, y, 1, 1);
+            }
+        }
+        
+        const fallbackTexture = new THREE.CanvasTexture(canvas);
+        const fallbackMaterial = new THREE.MeshPhongMaterial({ 
+            map: fallbackTexture,
+            color: 0xffffff
+        });
+        
+        const fallbackSphere = new THREE.Mesh(geometry, fallbackMaterial);
+        fallbackSphere.position.set(0, 0, 0);
+        scene.add(fallbackSphere);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate spheres to see all sides
+            basicSphere.rotation.y += 0.01;
+            earthSphere.rotation.y += 0.01;
+            fallbackSphere.rotation.y += 0.01;
+            
+            renderer.render(scene, camera);
+        }
+
+        // Start animation
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Additional debugging
+        console.log('Three.js version:', THREE.REVISION);
+        console.log('WebGL renderer info:', renderer.info);
+        console.log('Camera position:', camera.position);
+        console.log('Scene children:', scene.children.length);
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🌟 Main Simulation Zoom Test</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        canvas { border: 1px solid #333; }
+        #instructions { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>🌟 Main Simulation Zoom Test</h3>
+        <div id="camera-info">Camera: Loading...</div>
+        <div id="spherical-info">Spherical: Loading...</div>
+        <div id="zoom-info">Zoom: <span class="warning">Testing...</span></div>
+        <div id="result-info">Result: <span class="warning">Testing...</span></div>
+    </div>
+    
+    <div id="instructions">
+        <h4>🔍 Test Instructions</h4>
+        <div>1. Use mouse wheel to zoom</div>
+        <div>2. Check console for debug logs</div>
+        <div>3. Verify camera position changes</div>
+        <div>4. Compare with immediate-fix.html</div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/planetData.js"></script>
+    <script src="js/cameraControls.js"></script>
+    
+    <script>
+        // Create scene (same as main simulation)
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Add test planets (simplified from main simulation)
+        const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
+        const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+        scene.add(sun);
+        
+        const earthGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const earthMaterial = new THREE.MeshBasicMaterial({ color: 0x6b93d6 });
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        earth.position.set(10, 0, 0);
+        scene.add(earth);
+        
+        const marsGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+        const marsMaterial = new THREE.MeshBasicMaterial({ color: 0xcd5c5c });
+        const mars = new THREE.Mesh(marsGeometry, marsMaterial);
+        mars.position.set(15, 0, 0);
+        scene.add(mars);
+        
+        // Position camera (same as main simulation)\n        camera.position.set(0, 10, 25);\n        camera.lookAt(0, 0, 0);\n        \n        // Initialize camera controls (same as main simulation)\n        console.log('🌟 MAIN SIM TEST: Initializing camera controls...');\n        const cameraControls = new CameraControls(camera, renderer.domElement, scene);\n        \n        // Test zoom functionality\n        let zoomTestResults = {\n            wheelEventsDetected: 0,\n            positionChanges: 0,\n            radiusChanges: 0,\n            lastRadius: cameraControls.spherical.radius,\n            lastPosition: camera.position.clone()\n        };\n        \n        console.log('🌟 MAIN SIM TEST: Initial camera position:', camera.position.x, camera.position.y, camera.position.z);\n        console.log('🌟 MAIN SIM TEST: Initial spherical radius:', cameraControls.spherical.radius);\n        \n        // Monitor wheel events\n        renderer.domElement.addEventListener('wheel', (event) => {\n            zoomTestResults.wheelEventsDetected++;\n            console.log('🌟 MAIN SIM TEST: Wheel event detected #', zoomTestResults.wheelEventsDetected);\n        });\n        \n        // Update status display\n        function updateStatus() {\n            document.getElementById('camera-info').innerHTML = \n                `Camera: (${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)})`;\n            document.getElementById('spherical-info').innerHTML = \n                `Spherical: r=${cameraControls.spherical.radius.toFixed(2)}, θ=${cameraControls.spherical.theta.toFixed(2)}, φ=${cameraControls.spherical.phi.toFixed(2)}`;\n            \n            // Check for changes\n            const positionChanged = !camera.position.equals(zoomTestResults.lastPosition);\n            const radiusChanged = Math.abs(cameraControls.spherical.radius - zoomTestResults.lastRadius) > 0.01;\n            \n            if (positionChanged) {\n                zoomTestResults.positionChanges++;\n                zoomTestResults.lastPosition = camera.position.clone();\n            }\n            \n            if (radiusChanged) {\n                zoomTestResults.radiusChanges++;\n                zoomTestResults.lastRadius = cameraControls.spherical.radius;\n            }\n            \n            // Update zoom status\n            if (zoomTestResults.wheelEventsDetected > 0) {\n                if (positionChanged && radiusChanged) {\n                    document.getElementById('zoom-info').innerHTML = \n                        `Zoom: <span class=\"success\">✅ Working! (${zoomTestResults.wheelEventsDetected} events)</span>`;\n                    document.getElementById('result-info').innerHTML = \n                        `Result: <span class=\"success\">✅ ZOOM FIX SUCCESSFUL!</span>`;\n                } else {\n                    document.getElementById('zoom-info').innerHTML = \n                        `Zoom: <span class=\"error\">❌ Not working (${zoomTestResults.wheelEventsDetected} events)</span>`;\n                    document.getElementById('result-info').innerHTML = \n                        `Result: <span class=\"error\">❌ Zoom still broken</span>`;\n                }\n            }\n        }\n        \n        // Render loop\n        function animate() {\n            requestAnimationFrame(animate);\n            \n            // Update camera controls\n            cameraControls.update();\n            \n            // Update status\n            updateStatus();\n            \n            // Rotate planets\n            sun.rotation.y += 0.005;\n            earth.rotation.y += 0.01;\n            mars.rotation.y += 0.015;\n            \n            renderer.render(scene, camera);\n        }\n        \n        animate();\n        \n        console.log('🌟 MAIN SIM TEST: Setup complete. Test mouse wheel zoom!');\n        console.log('🌟 MAIN SIM TEST: This uses the same camera controls as the main simulation');\n    </script>\n</body>\n</html>

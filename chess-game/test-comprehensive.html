@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chess Game Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 3px; }
+        .pass { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .fail { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        button { padding: 10px 15px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #board { display: grid; grid-template-columns: repeat(8, 50px); grid-template-rows: repeat(8, 50px); width: 400px; border: 2px solid black; margin: 20px 0; }
+        .square { display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        .light { background-color: #f0d9b5; }
+        .dark { background-color: #b58863; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Chess Game Comprehensive Test</h1>
+        
+        <div class="test-section">
+            <h2>Library Loading Test</h2>
+            <button onclick="testLibraries()">Test Libraries</button>
+            <div id="library-test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Game Initialization Test</h2>
+            <button onclick="testGameInitialization()">Test Game Initialization</button>
+            <div id="initialization-test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Piece Selection Test</h2>
+            <button onclick="testPieceSelection()">Test Piece Selection</button>
+            <div id="piece-selection-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Board Rendering Test</h2>
+            <button onclick="testBoardRendering()">Test Board Rendering</button>
+            <div id="board-rendering-results"></div>
+            <div id="board"></div>
+        </div>
+    </div>
+
+    <!-- Include chess.js library -->
+    <script src="js/chess.js"></script>
+    <script src="js/ChessGame.js"></script>
+    <script>
+        function logResult(containerId, message, success) {
+            const container = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${success ? 'pass' : 'fail'}`;
+            resultDiv.innerHTML = `${success ? '✓' : '✗'} ${message}`;
+            container.appendChild(resultDiv);
+        }
+        
+        function testLibraries() {
+            const container = document.getElementById('library-test-results');
+            container.innerHTML = '<h3>Testing...</h3>';
+            
+            try {
+                // Test chess.js
+                if (typeof Chess !== 'undefined') {
+                    logResult('library-test-results', 'Chess library loaded', true);
+                    const game = new Chess();
+                    logResult('library-test-results', 'Chess instance created successfully', true);
+                    logResult('library-test-results', `Initial turn: ${game.turn()}`, true);
+                } else {
+                    logResult('library-test-results', 'Chess library NOT loaded', false);
+                    return;
+                }
+                
+                // Test ChessGame.js
+                if (typeof ChessGame !== 'undefined') {
+                    logResult('library-test-results', 'ChessGame class loaded', true);
+                    const chessGame = new ChessGame();
+                    logResult('library-test-results', 'ChessGame instance created successfully', true);
+                    logResult('library-test-results', `Game mode: ${chessGame.gameMode}`, true);
+                    logResult('library-test-results', `Current player: ${chessGame.getCurrentPlayer()}`, true);
+                } else {
+                    logResult('library-test-results', 'ChessGame class NOT loaded', false);
+                }
+            } catch (error) {
+                logResult('library-test-results', `Error: ${error.message}`, false);
+            }
+        }
+        
+        function testGameInitialization() {
+            const container = document.getElementById('initialization-test-results');
+            container.innerHTML = '<h3>Testing...</h3>';
+            
+            try {
+                const chessGame = new ChessGame();
+                logResult('initialization-test-results', 'ChessGame created successfully', true);
+                
+                // Test board state
+                const boardState = chessGame.getBoardState();
+                logResult('initialization-test-results', 'Board state retrieved', true);
+                logResult('initialization-test-results', `Current player: ${boardState.currentPlayer}`, true);
+                logResult('initialization-test-results', `Game over: ${boardState.gameOver}`, true);
+                logResult('initialization-test-results', `In check: ${boardState.check}`, true);
+                
+                // Test initial board structure
+                if (boardState.board && Array.isArray(boardState.board) && boardState.board.length === 8) {
+                    logResult('initialization-test-results', 'Board has correct dimensions (8x8)', true);
+                    
+                    // Check first row (black pieces)
+                    const firstRow = boardState.board[0];
+                    if (firstRow && firstRow[0] && firstRow[0].color === 'b' && firstRow[0].type === 'r') {
+                        logResult('initialization-test-results', 'First piece is black rook', true);
+                    } else {
+                        logResult('initialization-test-results', 'First piece check failed', false);
+                    }
+                    
+                    // Check second row (black pawns)
+                    const secondRow = boardState.board[1];
+                    if (secondRow && secondRow[0] && secondRow[0].color === 'b' && secondRow[0].type === 'p') {
+                        logResult('initialization-test-results', 'Second row has black pawns', true);
+                    } else {
+                        logResult('initialization-test-results', 'Second row check failed', false);
+                    }
+                } else {
+                    logResult('initialization-test-results', 'Board structure invalid', false);
+                }
+            } catch (error) {
+                logResult('initialization-test-results', `Error: ${error.message}`, false);
+            }
+        }
+        
+        function testPieceSelection() {
+            const container = document.getElementById('piece-selection-results');
+            container.innerHTML = '<h3>Testing...</h3>';
+            
+            try {
+                const chessGame = new ChessGame();
+                const boardState = chessGame.getBoardState();
+                
+                logResult('piece-selection-results', 'ChessGame and board state retrieved', true);
+                logResult('piece-selection-results', `Current player: ${boardState.currentPlayer}`, true);
+                
+                // Test white piece selection (should work for white player)
+                if (boardState.currentPlayer === 'white') {
+                    // Get a white piece (row 7, col 0 should be white rook)
+                    const whitePiece = boardState.board[7][0];
+                    if (whitePiece && whitePiece.color === 'w') {
+                        logResult('piece-selection-results', 'White piece found at [7][0]', true);
+                        
+                        // Test color conversion
+                        const pieceColor = whitePiece.color === 'w' ? 'white' : 'black';
+                        logResult('piece-selection-results', `Piece color conversion: ${whitePiece.color} -> ${pieceColor}`, true);
+                        logResult('piece-selection-results', `Colors match: ${pieceColor === boardState.currentPlayer}`, true);
+                        
+                        if (pieceColor === boardState.currentPlayer) {
+                            logResult('piece-selection-results', 'White piece selection should work', true);
+                        } else {
+                            logResult('piece-selection-results', 'White piece selection logic error', false);
+                        }
+                    } else {
+                        logResult('piece-selection-results', 'White piece not found at [7][0]', false);
+                    }
+                }
+                
+                // Test black piece selection
+                const blackPiece = boardState.board[0][0];
+                if (blackPiece && blackPiece.color === 'b') {
+                    logResult('piece-selection-results', 'Black piece found at [0][0]', true);
+                    
+                    // Test color conversion
+                    const pieceColor = blackPiece.color === 'b' ? 'black' : 'white';
+                    logResult('piece-selection-results', `Piece color conversion: ${blackPiece.color} -> ${pieceColor}`, true);
+                    
+                    if (boardState.currentPlayer === 'white') {
+                        if (pieceColor !== boardState.currentPlayer) {
+                            logResult('piece-selection-results', 'Black piece selection correctly blocked for white player', true);
+                        } else {
+                            logResult('piece-selection-results', 'Black piece selection logic error', false);
+                        }
+                    }
+                } else {
+                    logResult('piece-selection-results', 'Black piece not found at [0][0]', false);
+                }
+                
+            } catch (error) {
+                logResult('piece-selection-results', `Error: ${error.message}`, false);
+            }
+        }
+        
+        function testBoardRendering() {
+            const container = document.getElementById('board-rendering-results');
+            container.innerHTML = '<h3>Testing...</h3>';
+            
+            try {
+                const chessGame = new ChessGame();
+                const boardState = chessGame.getBoardState();
+                const boardElement = document.getElementById('board');
+                boardElement.innerHTML = '';
+                
+                logResult('board-rendering-results', 'ChessGame and board state retrieved', true);
+                
+                // Create a simple 4x4 board for testing
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        const square = document.createElement('div');
+                        square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+                        square.textContent = getPieceSymbol(boardState.board[row][col]);
+                        boardElement.appendChild(square);
+                    }
+                }
+                
+                logResult('board-rendering-results', 'Board rendering completed', true);
+            } catch (error) {
+                logResult('board-rendering-results', `Error: ${error.message}`, false);
+            }
+        }
+        
+        function getPieceSymbol(piece) {
+            if (!piece) return '';
+            const symbols = {
+                'p': piece.color === 'w' ? '♙' : '♟',
+                'r': piece.color === 'w' ? '♖' : '♜',
+                'n': piece.color === 'w' ? '♘' : '♞',
+                'b': piece.color === 'w' ? '♗' : '♝',
+                'q': piece.color === 'w' ? '♕' : '♛',
+                'k': piece.color === 'w' ? '♔' : '♚'
+            };
+            return symbols[piece.type] || '';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Texture Loading Test</title>
+</head>
+<body>
+    <h1>Planet Texture Loading Test</h1>
+    <div id="results"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const testUrls = [
+            'https://www.solarsystemscope.com/textures/download/2k_mercury.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_venus_surface.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_mars.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_jupiter.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_saturn.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_uranus.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_neptune.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_moon.jpg',
+            'https://www.solarsystemscope.com/textures/download/2k_sun.jpg'
+        ];
+        
+        const results = document.getElementById('results');
+        
+        testUrls.forEach(url => {
+            const loader = new THREE.TextureLoader();
+            const planetName = url.split('/').pop().replace('.jpg', '');
+            
+            const div = document.createElement('div');
+            div.innerHTML = `<strong>${planetName}:</strong> Loading...`;
+            results.appendChild(div);
+            
+            loader.load(
+                url,
+                (texture) => {
+                    div.innerHTML = `<strong>${planetName}:</strong> ✅ SUCCESS - ${texture.image.width}x${texture.image.height}`;
+                    div.style.color = 'green';
+                },
+                (progress) => {
+                    div.innerHTML = `<strong>${planetName}:</strong> Loading ${Math.round(progress.loaded/progress.total*100)}%`;
+                },
+                (error) => {
+                    div.innerHTML = `<strong>${planetName}:</strong> ❌ FAILED - ${error.message || 'CORS/Network error'}`;
+                    div.style.color = 'red';
+                }
+            );
+        });
+    </script>
+</body>
+</html>

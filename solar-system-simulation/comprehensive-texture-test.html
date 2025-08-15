@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Texture URL Testing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ffeb3b;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #111;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        
+        h2 {
+            color: #4caf50;
+            margin-top: 0;
+        }
+        
+        .test-results {
+            margin-bottom: 20px;
+        }
+        
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #222;
+            border-radius: 5px;
+            border-left: 4px solid #666;
+        }
+        
+        .test-item.success {
+            border-left-color: #4caf50;
+        }
+        
+        .test-item.error {
+            border-left-color: #f44336;
+        }
+        
+        .test-item.loading {
+            border-left-color: #ff9800;
+        }
+        
+        .texture-info {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        #canvas-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        #test-canvas {
+            border: 1px solid #333;
+            max-width: 100%;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 5px;
+        }
+        
+        .planet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .planet-card {
+            background: #222;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        
+        .planet-preview {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 10px;
+            background: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .planet-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .planet-status {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        
+        .status-loading {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .status-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .status-error {
+            background: #f44336;
+            color: white;
+        }
+        
+        .cors-info {
+            background: #1a237e;
+            color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .cors-info h3 {
+            margin-top: 0;
+            color: #ffeb3b;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌌 Solar System Texture URL Testing</h1>
+        
+        <div class="test-section">
+            <h2>🔍 URL Accessibility Test</h2>
+            <p>Testing direct access to Solar System Scope texture URLs...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="url-progress"></div>
+            </div>
+            <div id="url-results" class="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎨 Three.js Texture Loading Test</h2>
+            <p>Testing actual Three.js TextureLoader functionality...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="threejs-progress"></div>
+            </div>
+            <div id="threejs-results" class="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🌍 Visual Texture Test</h2>
+            <p>Testing textures applied to actual 3D spheres...</p>
+            <div class="controls">
+                <button id="start-visual-test">Start Visual Test</button>
+                <button id="next-texture">Next Texture</button>
+                <button id="prev-texture">Previous Texture</button>
+                <button id="rotate-sphere">Toggle Rotation</button>
+            </div>
+            <div id="canvas-container">
+                <canvas id="test-canvas" width="800" height="600"></canvas>
+            </div>
+            <div id="current-texture-info"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Planet Status Overview</h2>
+            <div class="planet-grid" id="planet-grid"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📈 Test Statistics</h2>
+            <div class="stats" id="test-stats">
+                <div>Tests running...</div>
+            </div>
+        </div>
+        
+        <div class="cors-info">
+            <h3>🛡️ CORS Information</h3>
+            <p>If textures fail to load, it may be due to CORS (Cross-Origin Resource Sharing) restrictions. 
+            Solar System Scope textures should work if they allow cross-origin access.</p>
+            <p><strong>Testing Strategy:</strong></p>
+            <ul>
+                <li>✅ Direct URL access test</li>
+                <li>✅ Three.js TextureLoader test</li>
+                <li>✅ Visual rendering test</li>
+                <li>✅ Fallback URL testing</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Critical texture URLs to test
+        const CRITICAL_TEXTURE_URLS = [
+            {
+                name: "Earth",
+                url: "https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg"
+            },
+            {
+                name: "Mars",
+                url: "https://www.solarsystemscope.com/textures/download/2k_mars.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/mars_1k_color.jpg"
+            },
+            {
+                name: "Jupiter",
+                url: "https://www.solarsystemscope.com/textures/download/2k_jupiter.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/jupiter_2k.jpg"
+            },
+            {
+                name: "Saturn",
+                url: "https://www.solarsystemscope.com/textures/download/2k_saturn.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/saturn_2k.jpg"
+            },
+            {
+                name: "Mercury",
+                url: "https://www.solarsystemscope.com/textures/download/2k_mercury.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/mercury.jpg"
+            },
+            {
+                name: "Venus",
+                url: "https://www.solarsystemscope.com/textures/download/2k_venus_surface.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/venus_surface.jpg"
+            },
+            {
+                name: "Uranus",
+                url: "https://www.solarsystemscope.com/textures/download/2k_uranus.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/uranus_2k.jpg"
+            },
+            {
+                name: "Neptune",
+                url: "https://www.solarsystemscope.com/textures/download/2k_neptune.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/neptune_2k.jpg"
+            },
+            {
+                name: "Sun",
+                url: "https://www.solarsystemscope.com/textures/download/2k_sun.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/sun.jpg"
+            },
+            {
+                name: "Moon",
+                url: "https://www.solarsystemscope.com/textures/download/2k_moon.jpg",
+                fallback: "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/moon_1024.jpg"
+            }
+        ];
+
+        // Global variables
+        let scene, camera, renderer, currentSphere, currentTextureIndex = 0;
+        let rotationEnabled = true;
+        let loadedTextures = new Map();
+        let testResults = {
+            urlTests: new Map(),
+            threeJsTests: new Map(),
+            visualTests: new Map()
+        };
+
+        // Initialize the application
+        function init() {
+            setupPlanetGrid();
+            startUrlTest();
+            startThreeJsTest();
+            setupVisualTest();
+            updateStats();
+        }
+
+        // Setup the planet grid
+        function setupPlanetGrid() {
+            const grid = document.getElementById('planet-grid');
+            
+            CRITICAL_TEXTURE_URLS.forEach(planet => {
+                const card = document.createElement('div');
+                card.className = 'planet-card';
+                card.innerHTML = `
+                    <div class="planet-preview" id="preview-${planet.name}">Loading...</div>
+                    <div class="planet-name">${planet.name}</div>
+                    <div class="planet-status status-loading" id="status-${planet.name}">Testing...</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Test 1: Direct URL accessibility
+        async function startUrlTest() {
+            const results = document.getElementById('url-results');
+            const progress = document.getElementById('url-progress');
+            let completed = 0;
+            
+            for (const planet of CRITICAL_TEXTURE_URLS) {
+                const testItem = document.createElement('div');
+                testItem.className = 'test-item loading';
+                testItem.innerHTML = `
+                    <strong>${planet.name}:</strong> Testing URL accessibility...
+                    <div class="texture-info">URL: ${planet.url}</div>
+                `;
+                results.appendChild(testItem);
+                
+                try {
+                    const response = await fetch(planet.url, { method: 'HEAD' });
+                    const success = response.ok;
+                    
+                    testResults.urlTests.set(planet.name, {
+                        success,
+                        status: response.status,
+                        statusText: response.statusText,
+                        url: planet.url
+                    });
+                    
+                    testItem.className = success ? 'test-item success' : 'test-item error';
+                    testItem.innerHTML = `
+                        <strong>${planet.name}:</strong> ${success ? '✅ URL Accessible' : '❌ URL Failed'} (${response.status})
+                        <div class="texture-info">URL: ${planet.url}</div>
+                        <div class="texture-info">Status: ${response.status} ${response.statusText}</div>
+                    `;
+                    
+                } catch (error) {
+                    testResults.urlTests.set(planet.name, {
+                        success: false,
+                        error: error.message,
+                        url: planet.url
+                    });
+                    
+                    testItem.className = 'test-item error';
+                    testItem.innerHTML = `
+                        <strong>${planet.name}:</strong> ❌ URL Failed (${error.message})
+                        <div class="texture-info">URL: ${planet.url}</div>
+                        <div class="texture-info">Error: ${error.message}</div>
+                    `;
+                }
+                
+                completed++;
+                progress.style.width = `${(completed / CRITICAL_TEXTURE_URLS.length) * 100}%`;
+                await new Promise(resolve => setTimeout(resolve, 100)); // Small delay
+            }
+        }
+
+        // Test 2: Three.js TextureLoader test
+        async function startThreeJsTest() {
+            const results = document.getElementById('threejs-results');
+            const progress = document.getElementById('threejs-progress');
+            const loader = new THREE.TextureLoader();
+            let completed = 0;
+            
+            for (const planet of CRITICAL_TEXTURE_URLS) {
+                const testItem = document.createElement('div');
+                testItem.className = 'test-item loading';
+                testItem.innerHTML = `
+                    <strong>${planet.name}:</strong> Testing Three.js TextureLoader...
+                    <div class="texture-info">URL: ${planet.url}</div>
+                `;
+                results.appendChild(testItem);
+                
+                try {
+                    const texture = await new Promise((resolve, reject) => {
+                        loader.load(
+                            planet.url,
+                            (texture) => {
+                                resolve(texture);
+                            },
+                            (progress) => {
+                                // Progress callback
+                            },
+                            (error) => {
+                                reject(error);
+                            }
+                        );
+                    });
+                    
+                    // Store loaded texture
+                    loadedTextures.set(planet.name, texture);
+                    
+                    testResults.threeJsTests.set(planet.name, {
+                        success: true,
+                        dimensions: `${texture.image.width}x${texture.image.height}`,
+                        url: planet.url
+                    });
+                    
+                    testItem.className = 'test-item success';
+                    testItem.innerHTML = `
+                        <strong>${planet.name}:</strong> ✅ Three.js Load Success
+                        <div class="texture-info">URL: ${planet.url}</div>
+                        <div class="texture-info">Dimensions: ${texture.image.width}x${texture.image.height}</div>
+                        <div class="texture-info">Format: ${texture.format}</div>
+                    `;
+                    
+                    // Update planet status
+                    const statusEl = document.getElementById(`status-${planet.name}`);
+                    if (statusEl) {
+                        statusEl.className = 'planet-status status-success';
+                        statusEl.textContent = 'Success';
+                    }
+                    
+                } catch (error) {
+                    // Try fallback URL
+                    let fallbackSuccess = false;
+                    let fallbackTexture = null;
+                    
+                    if (planet.fallback) {
+                        try {
+                            fallbackTexture = await new Promise((resolve, reject) => {
+                                loader.load(
+                                    planet.fallback,
+                                    (texture) => resolve(texture),
+                                    null,
+                                    (error) => reject(error)
+                                );
+                            });
+                            
+                            loadedTextures.set(planet.name, fallbackTexture);
+                            fallbackSuccess = true;
+                            
+                        } catch (fallbackError) {
+                            console.warn(`Fallback also failed for ${planet.name}:`, fallbackError);
+                        }
+                    }
+                    
+                    testResults.threeJsTests.set(planet.name, {
+                        success: fallbackSuccess,
+                        error: error.message,
+                        fallbackUsed: fallbackSuccess,
+                        url: planet.url
+                    });
+                    
+                    testItem.className = fallbackSuccess ? 'test-item success' : 'test-item error';
+                    testItem.innerHTML = `
+                        <strong>${planet.name}:</strong> ${fallbackSuccess ? '✅ Fallback Success' : '❌ Three.js Load Failed'}
+                        <div class="texture-info">Primary URL: ${planet.url}</div>
+                        <div class="texture-info">Error: ${error.message}</div>
+                        ${fallbackSuccess ? `<div class="texture-info">Fallback URL: ${planet.fallback}</div>` : ''}
+                        ${fallbackSuccess && fallbackTexture ? `<div class="texture-info">Dimensions: ${fallbackTexture.image.width}x${fallbackTexture.image.height}</div>` : ''}
+                    `;
+                    
+                    // Update planet status
+                    const statusEl = document.getElementById(`status-${planet.name}`);
+                    if (statusEl) {
+                        statusEl.className = `planet-status ${fallbackSuccess ? 'status-success' : 'status-error'}`;
+                        statusEl.textContent = fallbackSuccess ? 'Fallback' : 'Failed';
+                    }
+                }
+                
+                completed++;
+                progress.style.width = `${(completed / CRITICAL_TEXTURE_URLS.length) * 100}%`;
+                updateStats();
+            }
+        }
+
+        // Test 3: Visual rendering test
+        function setupVisualTest() {
+            const canvas = document.getElementById('test-canvas');
+            
+            // Setup Three.js scene
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(canvas.width, canvas.height);
+            renderer.setClearColor(0x000000);
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            // Position camera
+            camera.position.z = 3;
+            
+            // Setup event listeners
+            document.getElementById('start-visual-test').addEventListener('click', startVisualTest);
+            document.getElementById('next-texture').addEventListener('click', nextTexture);
+            document.getElementById('prev-texture').addEventListener('click', prevTexture);
+            document.getElementById('rotate-sphere').addEventListener('click', toggleRotation);
+            
+            // Start render loop
+            animate();
+        }
+
+        function startVisualTest() {
+            if (currentSphere) {
+                scene.remove(currentSphere);
+            }
+            
+            currentTextureIndex = 0;
+            createSphereWithTexture();
+            
+            // Enable controls
+            document.getElementById('next-texture').disabled = false;
+            document.getElementById('prev-texture').disabled = false;
+            document.getElementById('rotate-sphere').disabled = false;
+        }
+
+        function createSphereWithTexture() {
+            if (currentTextureIndex >= CRITICAL_TEXTURE_URLS.length) {
+                currentTextureIndex = 0;
+            }
+            
+            const planet = CRITICAL_TEXTURE_URLS[currentTextureIndex];
+            const texture = loadedTextures.get(planet.name);
+            
+            if (currentSphere) {
+                scene.remove(currentSphere);
+            }
+            
+            // Create sphere geometry
+            const geometry = new THREE.SphereGeometry(1, 32, 32);
+            
+            // Create material
+            let material;
+            if (texture) {
+                material = new THREE.MeshPhongMaterial({
+                    map: texture,
+                    side: THREE.DoubleSide
+                });
+                
+                // Configure texture
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.minFilter = THREE.LinearMipMapLinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                texture.flipY = false;
+                
+                testResults.visualTests.set(planet.name, {
+                    success: true,
+                    textureApplied: true
+                });
+                
+            } else {
+                // Use fallback color
+                material = new THREE.MeshPhongMaterial({
+                    color: 0x888888,
+                    side: THREE.DoubleSide
+                });
+                
+                testResults.visualTests.set(planet.name, {
+                    success: false,
+                    textureApplied: false,
+                    fallbackColor: true
+                });
+            }
+            
+            // Create mesh
+            currentSphere = new THREE.Mesh(geometry, material);
+            scene.add(currentSphere);
+            
+            // Update UI
+            updateCurrentTextureInfo();
+            updateStats();
+        }
+
+        function nextTexture() {
+            currentTextureIndex = (currentTextureIndex + 1) % CRITICAL_TEXTURE_URLS.length;
+            createSphereWithTexture();
+        }
+
+        function prevTexture() {
+            currentTextureIndex = (currentTextureIndex - 1 + CRITICAL_TEXTURE_URLS.length) % CRITICAL_TEXTURE_URLS.length;
+            createSphereWithTexture();
+        }
+
+        function toggleRotation() {
+            rotationEnabled = !rotationEnabled;
+            const button = document.getElementById('rotate-sphere');
+            button.textContent = rotationEnabled ? 'Stop Rotation' : 'Start Rotation';
+        }
+
+        function updateCurrentTextureInfo() {
+            const info = document.getElementById('current-texture-info');
+            if (currentTextureIndex < CRITICAL_TEXTURE_URLS.length) {
+                const planet = CRITICAL_TEXTURE_URLS[currentTextureIndex];
+                const texture = loadedTextures.get(planet.name);
+                const hasTexture = texture !== undefined;
+                
+                info.innerHTML = `
+                    <div style="margin-top: 15px; padding: 15px; background: #222; border-radius: 5px;">
+                        <strong>Current: ${planet.name}</strong><br>
+                        <strong>Status:</strong> ${hasTexture ? '✅ Texture Applied' : '❌ Using Fallback Color'}<br>
+                        <strong>URL:</strong> ${planet.url}<br>
+                        ${hasTexture ? `<strong>Dimensions:</strong> ${texture.image.width}x${texture.image.height}<br>` : ''}
+                        <strong>Index:</strong> ${currentTextureIndex + 1} of ${CRITICAL_TEXTURE_URLS.length}
+                    </div>
+                `;
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (currentSphere && rotationEnabled) {
+                currentSphere.rotation.x += 0.005;
+                currentSphere.rotation.y += 0.01;
+            }
+            
+            renderer.render(scene, camera);
+        }
+
+        function updateStats() {
+            const stats = document.getElementById('test-stats');
+            
+            const urlSuccesses = Array.from(testResults.urlTests.values()).filter(r => r.success).length;
+            const threeJsSuccesses = Array.from(testResults.threeJsTests.values()).filter(r => r.success).length;
+            const visualSuccesses = Array.from(testResults.visualTests.values()).filter(r => r.success).length;
+            
+            const totalTests = CRITICAL_TEXTURE_URLS.length;
+            
+            stats.innerHTML = `
+                <div><strong>📊 Test Results Summary</strong></div>
+                <div style="margin-top: 10px;">
+                    <div>🔗 URL Accessibility: ${urlSuccesses}/${totalTests} (${Math.round(urlSuccesses/totalTests*100)}%)</div>
+                    <div>🎨 Three.js Loading: ${threeJsSuccesses}/${totalTests} (${Math.round(threeJsSuccesses/totalTests*100)}%)</div>
+                    <div>👁️ Visual Rendering: ${visualSuccesses}/${testResults.visualTests.size} tested</div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <div><strong>🎯 Key Findings:</strong></div>
+                    <div style="margin-left: 20px;">
+                        ${urlSuccesses === totalTests ? '✅ All URLs are accessible' : '⚠️ Some URLs may have CORS issues'}
+                    </div>
+                    <div style="margin-left: 20px;">
+                        ${threeJsSuccesses === totalTests ? '✅ All textures load in Three.js' : '⚠️ Some textures require fallback URLs'}
+                    </div>
+                    <div style="margin-left: 20px;">
+                        ${loadedTextures.size > 0 ? '✅ Textures can be applied to 3D objects' : '⚠️ No textures loaded yet'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

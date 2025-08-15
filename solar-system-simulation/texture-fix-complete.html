@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🚀 Complete Texture Fix Test</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: monospace; }
+        #status { position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; z-index: 1000; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        canvas { border: 1px solid #333; }
+        .planet-info { margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>🚀 Complete Texture Fix Test</h3>
+        <div id="overall-status">⏳ Initializing...</div>
+        <div id="planet-list"></div>
+        <div style="margin-top: 10px; font-size: 12px;">
+            <strong>Expected:</strong> All planets should show textures, not solid colors
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        console.log('🚀 TEXTURE FIX: Starting complete test...');
+        
+        // Create scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // Position camera
+        camera.position.set(0, 5, 15);
+        camera.lookAt(0, 0, 0);
+        
+        // Create texture loader (matching the fixed implementation)
+        const textureLoader = new THREE.TextureLoader();
+        
+        // Test planets with proven working URLs
+        const testPlanets = [
+            {
+                name: 'Earth',
+                position: { x: 0, y: 0, z: 0 },
+                color: 0x6b93d6,
+                radius: 1,
+                textureUrl: 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg'
+            },
+            {
+                name: 'Mars',
+                position: { x: 4, y: 0, z: 0 },
+                color: 0xcd5c5c,
+                radius: 0.5,
+                textureUrl: 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/mars_1k_color.jpg'
+            },
+            {
+                name: 'Jupiter',
+                position: { x: -4, y: 0, z: 0 },
+                color: 0xd2691e,
+                radius: 2,
+                textureUrl: 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/jupiter_1024.jpg'
+            }
+        ];
+        
+        let planetsCreated = 0;
+        let texturesLoaded = 0;
+        let texturesFailed = 0;
+        
+        // Create planets using the FIXED approach
+        testPlanets.forEach((planetData, index) => {
+            // Create geometry
+            const geometry = new THREE.SphereGeometry(planetData.radius, 32, 32);
+            
+            // Create material with fallback color (FIXED APPROACH)
+            const material = new THREE.MeshBasicMaterial({ 
+                color: planetData.color 
+            });
+            
+            // Create mesh
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(planetData.position.x, planetData.position.y, planetData.position.z);
+            mesh.userData = { type: 'planet', name: planetData.name };
+            scene.add(mesh);
+            
+            planetsCreated++;
+            
+            // Load texture and apply (FIXED APPROACH)
+            console.log(`🚀 Loading texture for ${planetData.name}:`, planetData.textureUrl);
+            
+            textureLoader.load(
+                planetData.textureUrl,
+                (texture) => {
+                    console.log(`🚀 ✅ Texture loaded for ${planetData.name}`);
+                    
+                    // Apply texture to material (CRITICAL FIX)
+                    material.map = texture;
+                    material.needsUpdate = true;
+                    
+                    texturesLoaded++;
+                    updateStatus();
+                },
+                (progress) => {
+                    console.log(`🚀 Loading progress for ${planetData.name}...`);
+                },
+                (error) => {
+                    console.log(`🚀 ❌ Texture failed for ${planetData.name}:`, error);
+                    texturesFailed++;
+                    updateStatus();
+                }
+            );
+        });
+        
+        function updateStatus() {
+            const totalPlanets = testPlanets.length;
+            const processed = texturesLoaded + texturesFailed;
+            
+            let statusClass = 'warning';
+            let statusText = '⏳ Loading...';
+            
+            if (processed === totalPlanets) {
+                if (texturesLoaded === totalPlanets) {
+                    statusClass = 'success';
+                    statusText = '✅ All textures loaded successfully!';
+                } else if (texturesLoaded > 0) {
+                    statusClass = 'warning';
+                    statusText = '⚠️ Some textures loaded';
+                } else {
+                    statusClass = 'error';
+                    statusText = '❌ No textures loaded';
+                }
+            }
+            
+            document.getElementById('overall-status').innerHTML = 
+                `<span class="${statusClass}">${statusText}</span>`;
+            
+            // Update planet list
+            let planetListHTML = '';
+            testPlanets.forEach((planet, index) => {
+                const status = index < texturesLoaded ? 
+                    '<span class="success">✅ Texture applied</span>' :
+                    index < texturesLoaded + texturesFailed ?
+                    '<span class="error">❌ Texture failed</span>' :
+                    '<span class="warning">⏳ Loading...</span>';
+                
+                planetListHTML += `
+                    <div class="planet-info">
+                        <strong>${planet.name}</strong>: ${status}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('planet-list').innerHTML = planetListHTML;
+        }
+        
+        // Initial status update
+        updateStatus();
+        
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate planets
+            scene.children.forEach(child => {
+                if (child.userData && child.userData.type === 'planet') {
+                    child.rotation.y += 0.01;
+                }
+            });
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        console.log('🚀 TEXTURE FIX: Complete test setup finished!');
+        console.log('🚀 Watch the planets - they should show textures, not solid colors');
+        
+    </script>
+</body>
+</html>

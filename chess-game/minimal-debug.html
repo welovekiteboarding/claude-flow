@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Chess Debug</title>
+</head>
+<body>
+    <h1>Minimal Chess Debug</h1>
+    <div id="output"></div>
+    
+    <script src="js/chess.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const output = document.getElementById('output');
+            
+            try {
+                // Test 1: Basic chess.js
+                output.innerHTML += '<h2>Test 1: Basic chess.js</h2>';
+                const game = new Chess();
+                output.innerHTML += '<p>✓ Chess created</p>';
+                output.innerHTML += `<p>Turn: ${game.turn()}</p>`;
+                
+                // Test 2: Board structure
+                output.innerHTML += '<h2>Test 2: Board structure</h2>';
+                const board = game.board();
+                output.innerHTML += `<p>Board type: ${typeof board}</p>`;
+                output.innerHTML += `<p>Board length: ${board.length}</p>`;
+                
+                // Test 3: First piece
+                output.innerHTML += '<h2>Test 3: First piece</h2>';
+                const firstPiece = board[0][0];
+                output.innerHTML += `<p>First piece: ${JSON.stringify(firstPiece)}</p>`;
+                if (firstPiece) {
+                    output.innerHTML += `<p>Color: ${firstPiece.color}</p>`;
+                    output.innerHTML += `<p>Type: ${firstPiece.type}</p>`;
+                }
+                
+                // Test 4: Manual color check
+                output.innerHTML += '<h2>Test 4: Manual color check</h2>';
+                if (firstPiece && firstPiece.color === 'b') {
+                    output.innerHTML += '<p>✓ First piece color is "b" (black)</p>';
+                }
+                
+                // Test 5: Turn check
+                output.innerHTML += '<h2>Test 5: Turn check</h2>';
+                output.innerHTML += `<p>Current turn: "${game.turn()}"</p>`;
+                if (game.turn() === 'w') {
+                    output.innerHTML += '<p>✓ Current turn is "w" (white)</p>';
+                }
+                
+            } catch (error) {
+                output.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
